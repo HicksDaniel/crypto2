@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import BasicCard from "../components/card";
+import BasicCard from "../components/cards/basiccard";
 import { Button } from "primereact/button";
 import { RadioButton } from 'primereact/radiobutton';
 
@@ -69,39 +69,30 @@ export default function Dashboard() {
   }, []);
 
   return (
-    <div className="p-4 h-full min-w-min w-full">
-      {/* 
-      <div className="flex align-items-center h-4rem w-2 justify-content-evenly">
-        <div className="flex align-items-center">
-          {renderedRadioButtons}
-          <button onClick={() => console.log(chartArray)}>ChartArray</button>
-          <button onClick={() => console.log(selectedCategory)}>SelectedCategory</button>
+    <div>
 
-        </div>
-      </div> */}
-
-      <div className="flex min-w-min h-full flex-row flex-grow-1 align-items-center align-content-around justify-content-center flex-wrap row-gap-2 column-gap-0 p-3">
+      <div className="flex flex-row justify-content-center flex-wrap row-gap-3 pt-5 ">
         {data !== null && !loading && (
-          <BasicCard maxWidth="48rem" minWidth="24rem" width="50%" comp={<StyledLineChart />} />
+          <BasicCard maxWidth="48rem" minWidth="24rem" width="40%" comp={<StyledLineChart />} />
         )}
         {data !== null && !loading && (
-          <BasicCard maxWidth="48rem" minWidth="24rem" width="50%" comp={<StyledLineChart />} />
+          <BasicCard maxWidth="48rem" minWidth="24rem" width="40%" comp={<StyledLineChart />} />
         )}
         {data !== null && !loading && (
-          <BasicCard maxWidth="48rem" minWidth="24rem" width="25%" comp={<DoughnutChart />} />
+          <BasicCard maxWidth="24rem" minWidth="24rem" width="25%" comp={<DoughnutChart />} />
         )}
         {data !== null && !loading && (
-          <BasicCard maxWidth="48rem" minWidth="24rem" width="50%" comp={<CompoundLineChart />} />
+          <BasicCard maxWidth="48rem" minWidth="24rem" width="40%" comp={<CompoundLineChart />} />
         )}
         {data !== null && !loading && (
-          <BasicCard maxWidth="48rem" minWidth="24rem" width="50%" comp={<DoughnutChart />} />
+          <BasicCard maxWidth="24rem" minWidth="24rem" width="40%" comp={<DoughnutChart />} />
         )}
         {data !== null && !loading && (
-          <BasicCard maxWidth="48rem" minWidth="24rem" width="50%" comp={<CompoundLineChart />} />
+          <BasicCard maxWidth="48rem" minWidth="24rem" width="40%" comp={<CompoundLineChart />} />
         )}
 
       </div>
 
-    </div>
+    </div >
   );
 };

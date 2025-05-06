@@ -154,13 +154,12 @@ export default function CompoundLineChart() {
   }, []);
 
   return (
-    <div className="w-full">
-      <Chart
-        onClick={handleClick}
-        type="line"
-        data={chartData}
-        options={chartOptions}
-      />
-    </div>
+    <Chart
+      style={{ display: "flex", width: "95%", height: "20rem" }}
+      onClick={handleClick}
+      type="line"
+      data={chartData}
+      options={chartOptions}
+    />
   );
 }

@@ -123,7 +123,8 @@ export default function StyledLineChart() {
   return (
 
     <Chart
-      style={{ display: "flex", width: "inherit", height: "24rem" }}
+      style={{ display: "flex", justifySelf: "center", width: "95%", height: "20rem" }}
+
       className=""
       type="line"
       data={chartData}

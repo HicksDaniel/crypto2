@@ -4,6 +4,7 @@ import { Sidebar } from 'primereact/sidebar';
 import { Button } from 'primereact/button';
 
 
+
 export default function MenuSideBar({ width }) {
     const [visibleLeft, setVisibleLeft] = useState(false);
     const [visibleRight, setVisibleRight] = useState(false);
@@ -15,20 +16,40 @@ export default function MenuSideBar({ width }) {
             justifyContent: `flex-${position}`
         }
         return updatedStyles
+    })
+
+    let timeoutId;
+
+    function handleSideDrawers(value, string) {
+        if (value === true) {
+            if (string === "left") {
+
+                timeoutId = setTimeout(() => {
+                    setVisibleLeft(value)
+                }, 300)
+            } else {
+                timeoutId = setTimeout(() => {
+                    setVisibleRight(value)
+                }, 300)
+            }
+        } else {
+            setVisibleLeft(value)
+            setVisibleRight(value)
+        }
     }
 
-    )
+
     return (
         <div className="flex absolute w-full h-full justify-content-between" >
             <div className="flex w-4rem">
-                <Button style={{ ...buttonFormat("left", "start") }} icon="pi pi-arrow-right" onMouseEnter={() => setVisibleLeft(true)} />
+                <Button style={{ ...buttonFormat("left", "start") }} icon="pi pi-arrow-right" onMouseOver={() => handleSideDrawers(true, "left")} />
             </div>
             <div className="flex w-4rem">
-                <Button style={{ ...buttonFormat("right", "end") }} icon="pi pi-arrow-left" onMouseEnter={() => setVisibleRight(true)} />
+                <Button style={{ ...buttonFormat("right", "end") }} icon="pi pi-arrow-left" onMouseOver={() => handleSideDrawers(true, "right")} />
             </div>
 
 
-            <Sidebar style={{ width: `${width} ` }} visible={visibleLeft} position="left" onMouseLeave={() => setVisibleLeft(false)} onHide={() => setVisibleLeft(false)}>
+            <Sidebar style={{ width: `${width}`, minWidth: "200px" }} visible={visibleLeft} position="left" onMouseLeave={() => handleSideDrawers(false)} onHide={() => setVisibleLeft(false)}>
                 <h2>Left Sidebar</h2>
                 <p>
                     Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
@@ -36,7 +57,7 @@ export default function MenuSideBar({ width }) {
                 </p>
             </Sidebar>
 
-            <Sidebar style={{ width: `${width} ` }} visible={visibleRight} position="right" onMouseLeave={() => setVisibleRight(false)} onHide={() => setVisibleRight(false)}>
+            <Sidebar style={{ width: `${width} `, minWidth: "200px" }} visible={visibleRight} position="right" onMouseLeave={() => handleSideDrawers(false)} onHide={() => setVisibleRight(false)}>
                 <h2>Right Sidebar</h2>
                 <p>
                     Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.

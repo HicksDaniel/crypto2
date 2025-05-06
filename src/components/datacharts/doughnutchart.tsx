@@ -59,10 +59,10 @@ export default function DoughnutChart() {
   }, []);
 
   return (
-    <div className="flex justify-content-center w-full">
+    <>
       {!loading && hasData && (
-        <Chart style={{ display: "flex", justifyContent: "between", width: "20rem", height: "20rem" }} type="doughnut" data={chartData} options={chartOptions} />
+        <Chart style={{ display: "flex", justifyContent: "center", width: "inherit", height: "20rem" }} type="doughnut" data={chartData} options={chartOptions} />
       )}
-    </div>
+    </>
   );
 }

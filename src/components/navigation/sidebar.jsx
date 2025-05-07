@@ -1,13 +1,19 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Sidebar } from 'primereact/sidebar';
 import { Button } from 'primereact/button';
+import { useCoinStore } from '../../stores/useCoinStore';
+import ChartSelector from '../cards/selectchartbuttons/chartSelector';
+import { Chart } from 'chart.js';
 
 
 
 export default function MenuSideBar({ width }) {
     const [visibleLeft, setVisibleLeft] = useState(false);
     const [visibleRight, setVisibleRight] = useState(false);
+    const { data, loading, error, fetchData, showingCharts, chartButtonList,
+        visibleCharts, updateCharts,
+    } = useCoinStore();
 
     const buttonFormat = ((direction, position) => {
         const updatedStyles = {
@@ -20,7 +26,9 @@ export default function MenuSideBar({ width }) {
 
     let timeoutId;
 
+
     function handleSideDrawers(value, string) {
+
         if (value === true) {
             if (string === "left") {
 
@@ -51,10 +59,7 @@ export default function MenuSideBar({ width }) {
 
             <Sidebar style={{ width: `${width}`, minWidth: "200px" }} visible={visibleLeft} position="left" onMouseLeave={() => handleSideDrawers(false)} onHide={() => setVisibleLeft(false)}>
                 <h2>Left Sidebar</h2>
-                <p>
-                    Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
-                    Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.
-                </p>
+                <ChartSelector />
             </Sidebar>
 
             <Sidebar style={{ width: `${width} `, minWidth: "200px" }} visible={visibleRight} position="right" onMouseLeave={() => handleSideDrawers(false)} onHide={() => setVisibleRight(false)}>

@@ -1,6 +1,7 @@
 import { Badge } from "primereact/badge";
 import { useNavigate } from "react-router";
 
+
 function itemRenderer(item) {
     const navigate = useNavigate();
     const handleRouting = (toRoute) => {
@@ -14,16 +15,10 @@ function itemRenderer(item) {
             {item.badge && <Badge className="m-0 p-0" value={item.badge} />}
 
         </a>
-    );
-}
-
-const handleRouting = (toRoute) => {
-    navigate(toRoute);
+    )
 };
 
-
 export const topbarMenuItems = [
-
     {
         label: 'Home',
         icon: 'pi pi-home',

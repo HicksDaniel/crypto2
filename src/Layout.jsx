@@ -9,7 +9,7 @@ const SIDE_BAR_WIDTH = "12.5%";
 const contentStyles = {
     marginTop: TOP_BAR_HEIGHT,
     height: `calc(100vh - ${TOP_BAR_HEIGHT})`,
-    padding: "10px",
+    padding: "20px",
     overflowX: "hidden",
     overflowY: "auto",
 }

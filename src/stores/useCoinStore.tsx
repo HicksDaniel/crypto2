@@ -26,27 +26,89 @@ const MOCK_USER_COINS = [
 
 const DEFAULT_CHART_LIST = [
   {
-    name: "Option 1",
+    name: "Compound Line",
     value: 1,
-    comp: <DoughnutChart />
+    comp: <CompoundLineChart />,
+    size: {
+      maxWidth: "48rem",
+      minWidth: "24rem",
+      width: "100%"
+    }
   },
   {
-    name: "Option 2",
+    name: "Doughnut",
     value: 2,
-    comp: <StyledLineChart />
+    comp: <DoughnutChart />,
+    size: {
+      maxWidth: "24rem",
+      minWidth: "24rem",
+      width: "100%"
+    }
   },
   {
-    name: "Option 3",
+    name: "Styled Line",
     value: 3,
-    comp: <CompoundLineChart />
+    comp: <StyledLineChart />,
+    size: {
+      maxWidth: "48rem",
+      minWidth: "24rem",
+      width: "100%"
+    }
+  },
+  {
+    name: "Compound Line",
+    value: 4,
+    comp: <CompoundLineChart />,
+    size: {
+      maxWidth: "48rem",
+      minWidth: "24rem",
+      width: "100%"
+    }
+  },
+
+  {
+    name: "Doughnut",
+    value: 5,
+    comp: <DoughnutChart />,
+    size: {
+      maxWidth: "24rem",
+      minWidth: "24rem",
+      width: "100%"
+    }
+  },
+  {
+    name: "Styled Line",
+    value: 6,
+    comp: <StyledLineChart />,
+    size: {
+      maxWidth: "48rem",
+      minWidth: "24rem",
+      width: "100%"
+    }
   },
   {
     name: "Option 4",
-    value: 4,
-    comp: "NO CHART AVAILABLE"
+    value: 7,
+    comp: "NO CHART AVAILABLE",
+    size: {
+      maxWidth: "24rem",
+      minWidth: "24rem",
+      width: "100%"
+    }
   },
 
 ];
+
+const fetchTrendingCoinData = async () => {
+  const res = await fetch(`https://pro-api.coingecko.com/api/v3/search/trending`, {
+    method: "GET",
+    headers: FETCH_HEADER,
+  });
+  if (!res.ok) throw Error(res?.error || "Oh no, shit broke. - fetchTrendingCoinData()");
+
+  const data = await res.json();
+  return data || {};
+}
 
 const fetchCoinData = async (coinName: string) => {
   const res = await fetch(`${BASE_URL}/coins/${coinName}`, {
@@ -54,7 +116,7 @@ const fetchCoinData = async (coinName: string) => {
     headers: FETCH_HEADER,
   });
 
-  if (!res.ok) throw Error(res?.error || "Oh no, shit broke.");
+  if (!res.ok) throw Error(res?.error || "Oh no, shit broke. - fetchCoinData()");
   const data = await res.json();
 
   return data || {};
@@ -63,6 +125,7 @@ const fetchCoinData = async (coinName: string) => {
 
 export const useCoinStore = create((set) => ({
   data: DEFAULT_DATA_STATE,
+  trendingData: [],
   userCoins: MOCK_USER_COINS,
   loading: false,
   error: null,
@@ -73,10 +136,17 @@ export const useCoinStore = create((set) => ({
 
   updateVisibleCharts: (value) => {
     set({ visibleCharts: value })
-    console.log("THIS IS VISIBLE CHARTS", value)
+
   },
   updateChartList: (value) => {
     set({ chartList: value })
+  },
+
+  fetchTrendingData: () => {
+    console.log("test")
+    fetchTrendingCoinData().then((res) => {
+      console.log(res)
+    })
   },
 
 

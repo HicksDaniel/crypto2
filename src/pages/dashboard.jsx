@@ -2,33 +2,22 @@ import { useState, useEffect } from "react";
 import BasicCard from "../components/cards/basiccard";
 import { Button } from "primereact/button";
 import { RadioButton } from 'primereact/radiobutton';
+import { Reorder } from "framer-motion";
 
 import "primeflex/primeflex.css";
 import { useCoinStore } from "../stores/useCoinStore";
-import DoughnutChart from "../components/datacharts/doughnutchart";
-import StyledLineChart from "../components/datacharts/styledlinechart";
-import CompoundLineChart from "../components/datacharts/compoundlinechart";
+// import DoughnutChart from "../components/datacharts/doughnutchart";
+// import StyledLineChart from "../components/datacharts/styledlinechart";
+// import CompoundLineChart from "../components/datacharts/compoundlinechart";
 
-const chartCategories = [
-  { name: "Compound L Chart", key: "C", showing: false, comp: <CompoundLineChart /> },
-  { name: "Doughnut Chart", key: "D", showing: false, comp: <DoughnutChart /> },
-  { name: "Styled Line Chart", key: "S", showing: false, comp: <StyledLineChart /> },
-];
+// const chartCategories = [
+//   { name: "Compound L Chart", key: "C", showing: false, comp: <CompoundLineChart /> },
+//   { name: "Doughnut Chart", key: "D", showing: false, comp: <DoughnutChart /> },
+//   { name: "Styled Line Chart", key: "S", showing: false, comp: <StyledLineChart /> },
+// ];
 
 export default function Dashboard() {
-  const [selectedCategory, setSelectedCategory] = useState(chartCategories[1]);
-  const [showingCharts, setShowingCharts] = useState([])
-  const { data, loading, error, fetchData, visibleCharts } = useCoinStore();
-
-  const renderedCharts = visibleCharts.map((chart) => {
-    console.log(chart.comp)
-    return (
-      data !== null && !loading && (
-        <BasicCard maxWidth="48rem" minWidth="24rem" width="40%" comp={chart.comp} />
-      )
-    )
-  })
-
+  const { data, loading, error, fetchData, visibleCharts, updateVisibleCharts } = useCoinStore();
 
   useEffect(() => {
     fetchData();
@@ -41,31 +30,61 @@ export default function Dashboard() {
     }
   }, []);
 
+  const renderedCharts = visibleCharts.map((chart) => {
+    data !== null && !loading
+    return (
+      (
+        <BasicCard maxWidth={chart.size.maxWidth} minWidth={chart.size.minWidth} width={chart.size.width} comp={chart.comp} />
+      )
+    )
+  })
+
+  // const renderedCharts = () => {
+  //   return (
+  //       < Reorder.Group
+  //       style={{ display: "flex", flexFlow: "row wrap", justifyContent: "center", rowGap: "", paddingTop: "40px", rowGap: "2ch", width: "100%", padding: 0, margin: 0 }}
+  //       axis="x"
+  //       values={visibleCharts}
+  //       onReorder={updateVisibleCharts}
+  //     >
+  //       {visibleCharts.map((chart) => (
+  //           <Reorder.Item initial={{ opacity: .5 }}
+  //             animate={{ opacity: 1 }}
+  //             exit={{ opacity: 0 }}
+  //             key={chart.value}
+  //             drag
+  //             value={chart.value}>
+  //             <div style={{
+  //               display: "flex",
+  //               justifyContent: "center",
+  //               color: "green",
+  //               fontSize: 20,
+  //               width: "100%",
+  //               height: "350px",
+  //               borderRadius: "2px",
+  //               textAlign: "center",
+
+  //             }}>
+  //               <BasicCard maxWidth="48rem" minWidth="24rem" width="100%" comp={chart.comp} />
+  //             </div>
+  //           </Reorder.Item>
+  //         ))
+  //       }
+  //     </Reorder.Group >
+  //   )
+  // }
+
+
+
+
+
+
   return (
-    <div>
-      <div className="flex flex-row justify-content-center flex-wrap row-gap-3 pt-5 ">
-        {renderedCharts}
-        {/* {data !== null && !loading && (
-          <BasicCard maxWidth="48rem" minWidth="24rem" width="40%" comp={<StyledLineChart />} />
-        )}
-        {data !== null && !loading && (
-          <BasicCard maxWidth="48rem" minWidth="24rem" width="40%" comp={<StyledLineChart />} />
-        )}
-        {data !== null && !loading && (
-          <BasicCard maxWidth="24rem" minWidth="24rem" width="25%" comp={<DoughnutChart />} />
-        )}
-        {data !== null && !loading && (
-          <BasicCard maxWidth="48rem" minWidth="24rem" width="40%" comp={<CompoundLineChart />} />
-        )}
-        {data !== null && !loading && (
-          <BasicCard maxWidth="24rem" minWidth="24rem" width="40%" comp={<DoughnutChart />} />
-        )}
-        {data !== null && !loading && (
-          <BasicCard maxWidth="48rem" minWidth="24rem" width="40%" comp={<CompoundLineChart />} />
-        )} */}
+    <div className="flex flex-row justify-content-center flex-wrap row-gap-3 pt-5">
 
-      </div>
 
-    </div >
+      {renderedCharts}
+
+    </div>
   );
 };

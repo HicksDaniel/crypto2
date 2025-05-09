@@ -17,7 +17,7 @@ export default function ChartSelector() {
         if (chartList === null) return;
         // console.log("chart list", chartList)
         const res = chartList.map((id => chartButtonList.find(item => item.value === id)))
-        console.log("list of charts and data", res)
+        // console.log("list of charts and data", res)
         setValue(chartList)
         updateVisibleCharts(res)
     }, [value])

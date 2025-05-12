@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect } from "react";
 import { SelectButton } from 'primereact/selectbutton';
-import { useCoinStore } from "../../../stores/useCoinStore";
+import { useCoinStore } from "../../../stores/useCoinStore.jsx";
 import DoughnutChart from "../../datacharts/doughnutchart";
 
 export default function ChartSelector() {

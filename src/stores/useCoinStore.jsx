@@ -100,7 +100,7 @@ const DEFAULT_CHART_LIST = [
 ];
 
 const fetchTrendingCoinData = async () => {
-  const res = await fetch(`https://pro-api.coingecko.com/api/v3/search/trending`, {
+  const res = await fetch('https://api.coingecko.com/api/v3/search/trending?coins', {
     method: "GET",
     headers: FETCH_HEADER,
   });
@@ -110,7 +110,7 @@ const fetchTrendingCoinData = async () => {
   return data || {};
 }
 
-const fetchCoinData = async (coinName: string) => {
+const fetchCoinData = async (coinName) => {
   const res = await fetch(`${BASE_URL}/coins/${coinName}`, {
     method: "GET",
     headers: FETCH_HEADER,
@@ -142,13 +142,20 @@ export const useCoinStore = create((set) => ({
     set({ chartList: value })
   },
 
-  fetchTrendingData: () => {
-    console.log("test")
-    fetchTrendingCoinData().then((res) => {
-      console.log(res)
-    })
-  },
+  fetchTrendingData: async () => {
 
+
+    await fetchTrendingCoinData()
+      .then((responses) => {
+        return Promise.all(responses.coins.map(async (response) => {
+          return response.item
+        }))
+      })
+      .then((res) => {
+        console.log("store", res)
+        set({ trendingData: res })
+      })
+  },
 
   fetchData: async () => {
     const userCoins = MOCK_USER_COINS;

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Chart } from "primereact/chart";
-import { useCoinStore } from "../../stores/useCoinStore";
+import { useCoinStore } from "../../stores/useCoinStore.jsx";
 
 export default function StyledLineChart() {
   const [chartData, setChartData] = useState({});

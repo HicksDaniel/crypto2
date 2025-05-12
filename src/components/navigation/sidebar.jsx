@@ -11,9 +11,7 @@ import { Chart } from 'chart.js';
 export default function MenuSideBar({ width }) {
     const [visibleLeft, setVisibleLeft] = useState(false);
     const [visibleRight, setVisibleRight] = useState(false);
-    const { data, loading, error, fetchData, showingCharts, chartButtonList,
-        visibleCharts, updateCharts,
-    } = useCoinStore();
+
 
     const buttonFormat = ((direction, position) => {
         const updatedStyles = {
@@ -23,9 +21,6 @@ export default function MenuSideBar({ width }) {
         }
         return updatedStyles
     })
-
-    let timeoutId;
-
 
     function handleSideDrawers(value, string) {
 
@@ -48,29 +43,28 @@ export default function MenuSideBar({ width }) {
 
 
     return (
-        <div className="flex absolute w-full h-full justify-content-between" >
-            <div className="flex w-4rem">
+        <>
+            <div className="flex absolute left-0 h-full w-5rem">
                 <Button style={{ ...buttonFormat("left", "start") }} icon="pi pi-arrow-right" onMouseOver={() => handleSideDrawers(true, "left")} />
+
+                <Sidebar style={{ width: `${width}`, minWidth: "200px" }} visible={visibleLeft} position="left" onMouseLeave={() => handleSideDrawers(false)} onHide={() => setVisibleLeft(false)}>
+                    <h2>Select</h2>
+                    <ChartSelector />
+                </Sidebar>
             </div>
-            <div className="flex w-4rem">
+
+            <div className="flex absolute right-0 h-full w-5rem">
                 <Button style={{ ...buttonFormat("right", "end") }} icon="pi pi-arrow-left" onMouseOver={() => handleSideDrawers(true, "right")} />
-            </div>
+                <Sidebar style={{ width: `${width} `, minWidth: "200px" }} visible={visibleRight} position="right" onMouseLeave={() => handleSideDrawers(false)} onHide={() => setVisibleRight(false)}>
+                    <h2>Right Sidebar</h2>
+                    <p>
+                        Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
+                        Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.
+                    </p>
+                </Sidebar>
+            </div >
 
 
-            <Sidebar style={{ width: `${width}`, minWidth: "200px" }} visible={visibleLeft} position="left" onMouseLeave={() => handleSideDrawers(false)} onHide={() => setVisibleLeft(false)}>
-                <h2>Left Sidebar</h2>
-                <ChartSelector />
-            </Sidebar>
-
-            <Sidebar style={{ width: `${width} `, minWidth: "200px" }} visible={visibleRight} position="right" onMouseLeave={() => handleSideDrawers(false)} onHide={() => setVisibleRight(false)}>
-                <h2>Right Sidebar</h2>
-                <p>
-                    Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
-                    Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.
-                </p>
-            </Sidebar>
-
-
-        </div>
+        </>
     )
 }

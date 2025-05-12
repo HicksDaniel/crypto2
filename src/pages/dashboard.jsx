@@ -5,7 +5,7 @@ import { RadioButton } from 'primereact/radiobutton';
 import { Reorder } from "framer-motion";
 
 import "primeflex/primeflex.css";
-import { useCoinStore } from "../stores/useCoinStore";
+import { useCoinStore } from "../stores/useCoinStore.jsx";
 // import DoughnutChart from "../components/datacharts/doughnutchart";
 // import StyledLineChart from "../components/datacharts/styledlinechart";
 // import CompoundLineChart from "../components/datacharts/compoundlinechart";

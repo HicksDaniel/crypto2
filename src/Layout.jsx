@@ -4,6 +4,7 @@ import MenuTopBar from "./components/navigation/topbar";
 import MenuSideBar from "./components/navigation/sidebar";
 import { Button } from "primereact/button";
 
+
 const TOP_BAR_HEIGHT = "75px";
 const SIDE_BAR_WIDTH = "12.5%";
 

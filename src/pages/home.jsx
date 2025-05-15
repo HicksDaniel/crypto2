@@ -1,18 +1,13 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from "react";
 
-import TrendingDataTable from '../components/datacharts/trendingData/TrendingDataTable';
-
-
-
-
+import TrendingDataTable from "../components/datacharts/trendingData/TrendingDataTable";
+import HistoricalDataTable from "../components/datacharts/historicalData/HistoricalDataTable";
 
 export default function Home() {
-
-    return (
-        <>
-
-            <TrendingDataTable />
-
-        </>
-    )
+  return (
+    <>
+      <TrendingDataTable />
+      {/* <HistoricalDataTable search="bitcoin" /> */}
+    </>
+  );
 }

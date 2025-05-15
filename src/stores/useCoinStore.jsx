@@ -4,6 +4,7 @@ import { structuredCoinData } from "./structureData";
 import DoughnutChart from "../components/datacharts/doughnutchart";
 import StyledLineChart from "../components/datacharts/styledlinechart";
 import CompoundLineChart from "../components/datacharts/compoundlinechart";
+import { mapCoinData } from "../assets/common/utils";
 
 const DEFAULT_DATA_STATE = [];
 const BASE_URL = "https://api.coingecko.com/api/v3";
@@ -32,8 +33,8 @@ const DEFAULT_CHART_LIST = [
     size: {
       maxWidth: "48rem",
       minWidth: "24rem",
-      width: "100%"
-    }
+      width: "100%",
+    },
   },
   {
     name: "Doughnut",
@@ -42,8 +43,8 @@ const DEFAULT_CHART_LIST = [
     size: {
       maxWidth: "24rem",
       minWidth: "24rem",
-      width: "100%"
-    }
+      width: "100%",
+    },
   },
   {
     name: "Styled Line",
@@ -52,8 +53,8 @@ const DEFAULT_CHART_LIST = [
     size: {
       maxWidth: "48rem",
       minWidth: "24rem",
-      width: "100%"
-    }
+      width: "100%",
+    },
   },
   {
     name: "Compound Line",
@@ -62,8 +63,8 @@ const DEFAULT_CHART_LIST = [
     size: {
       maxWidth: "48rem",
       minWidth: "24rem",
-      width: "100%"
-    }
+      width: "100%",
+    },
   },
 
   {
@@ -73,8 +74,8 @@ const DEFAULT_CHART_LIST = [
     size: {
       maxWidth: "24rem",
       minWidth: "24rem",
-      width: "100%"
-    }
+      width: "100%",
+    },
   },
   {
     name: "Styled Line",
@@ -83,8 +84,8 @@ const DEFAULT_CHART_LIST = [
     size: {
       maxWidth: "48rem",
       minWidth: "24rem",
-      width: "100%"
-    }
+      width: "100%",
+    },
   },
   {
     name: "Option 4",
@@ -93,22 +94,41 @@ const DEFAULT_CHART_LIST = [
     size: {
       maxWidth: "24rem",
       minWidth: "24rem",
-      width: "100%"
-    }
+      width: "100%",
+    },
   },
-
 ];
 
 const fetchTrendingCoinData = async () => {
-  const res = await fetch('https://api.coingecko.com/api/v3/search/trending?coins', {
-    method: "GET",
-    headers: FETCH_HEADER,
-  });
-  if (!res.ok) throw Error(res?.error || "Oh no, shit broke. - fetchTrendingCoinData()");
+  const res = await fetch(
+    "https://api.coingecko.com/api/v3/search/trending?coins",
+    {
+      method: "GET",
+      headers: FETCH_HEADER,
+    }
+  );
+  if (!res.ok)
+    throw Error(res?.error || "Oh no, shit broke. - fetchCoinData()");
+  const data = await res.json();
+
+  return data || {};
+};
+const fetchHistoryCoinData = async (value) => {
+  console.log("inside fetch request", value);
+  const res = await fetch(
+    `https://api.coingecko.com/api/v3/coins/bitcoin/history`,
+    {
+      method: "GET",
+      headers: FETCH_HEADER,
+    }
+  );
+  console.log("fetch res", res);
+  if (!res.ok)
+    throw Error(res?.error || "Oh no, shit broke. - fetchHitoryCoinData()");
 
   const data = await res.json();
   return data || {};
-}
+};
 
 const fetchCoinData = async (coinName) => {
   const res = await fetch(`${BASE_URL}/coins/${coinName}`, {
@@ -116,16 +136,18 @@ const fetchCoinData = async (coinName) => {
     headers: FETCH_HEADER,
   });
 
-  if (!res.ok) throw Error(res?.error || "Oh no, shit broke. - fetchCoinData()");
+  if (!res.ok)
+    throw Error(res?.error || "Oh no, shit broke. - fetchCoinData()");
   const data = await res.json();
 
   return data || {};
 };
 
-
 export const useCoinStore = create((set) => ({
   data: DEFAULT_DATA_STATE,
-  trendingData: [],
+  rawTrendingData: [],
+  formattedTrendingData: [],
+  coinHistoryData: [],
   userCoins: MOCK_USER_COINS,
   loading: false,
   error: null,
@@ -133,28 +155,40 @@ export const useCoinStore = create((set) => ({
   chartList: [],
   visibleCharts: [],
 
-
   updateVisibleCharts: (value) => {
-    set({ visibleCharts: value })
-
+    set({ visibleCharts: value });
   },
   updateChartList: (value) => {
-    set({ chartList: value })
+    set({ chartList: value });
+  },
+
+  fetchHistoryData: async (value) => {
+    set({ loading: true });
+    try {
+      const response = await fetchHistoryCoinData(value);
+      console.log("response", response);
+      if (!response) throw new Error("No Results for History Data");
+      set({ coinHistoryData: response, loading: false });
+    } catch (error) {
+      set({ coinHistoryData: [], loading: false });
+      console.warn("Issue fetching historical coin data", error);
+    }
   },
 
   fetchTrendingData: async () => {
+    set({ loading: true });
+    try {
+      const response = await fetchTrendingCoinData();
+      if (!response) throw new Error("No Results for Trending Data");
 
-
-    await fetchTrendingCoinData()
-      .then((responses) => {
-        return Promise.all(responses.coins.map(async (response) => {
-          return response.item
-        }))
-      })
-      .then((res) => {
-        console.log("store", res)
-        set({ trendingData: res })
-      })
+      const formattedTrendingData = response.coins.map((coin) => ({
+        ...mapCoinData(coin.item),
+      }));
+      set({ rawTrendingData: response, formattedTrendingData, loading: false });
+    } catch (error) {
+      set({ trendingData: [], loading: false });
+      console.warn("Issue fetching trending coin data", error);
+    }
   },
 
   fetchData: async () => {

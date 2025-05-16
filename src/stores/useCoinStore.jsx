@@ -6,6 +6,7 @@ import StyledLineChart from "../components/datacharts/styledlinechart";
 import CompoundLineChart from "../components/datacharts/compoundlinechart";
 import { mapCoinData } from "../assets/common/utils";
 import { mapHistoricalData } from "../assets/common/utils";
+import { format } from "date-fns";
 
 const DEFAULT_DATA_STATE = [];
 const BASE_URL = "https://api.coingecko.com/api/v3";
@@ -115,8 +116,11 @@ const fetchTrendingCoinData = async () => {
   return data || {};
 };
 const fetchHistoryCoinData = async (value, date) => {
+  const formattedFetchDate = format(date, "dd-MM-yyyy");
+
+  const formattedDisplayDate = format(date, "MM-dd-yyyy");
   const res = await fetch(
-    `https://api.coingecko.com/api/v3/coins/${value}/history?date=${date}`,
+    `https://api.coingecko.com/api/v3/coins/${value}/history?date=${formattedFetchDate}`,
     {
       method: "GET",
       headers: FETCH_HEADER,
@@ -124,9 +128,16 @@ const fetchHistoryCoinData = async (value, date) => {
   );
   const data = await res.json();
 
+  const finalData = {
+    ...data,
+    date: formattedDisplayDate,
+  };
+
   if (!res.ok)
     throw Error(res?.error || "Oh no, shit broke. - fetchHitoryCoinData()");
-  return data || {};
+
+  console.log(finalData);
+  return finalData || {};
 };
 
 const fetchCoinData = async (coinName) => {
@@ -162,19 +173,34 @@ export const useCoinStore = create((set) => ({
     set({ chartList: value });
   },
 
-  fetchHistoryData: async (coin, date, localCurrency) => {
-
-    set({ loading: true });
+  fetchHistoryData: async (coin, dates, localCurrency) => {
+    set({ loading: true, error: null });
     try {
-      const response = await fetchHistoryCoinData(coin, date);
-      if (!response) throw new Error("No Results for History Data");
+      const promisesArray = dates.map(
+        async (date) => await fetchHistoryCoinData(coin, date)
+      );
 
-      const formattedHistoricalData = mapHistoricalData(response, localCurrency)
-      console.log(formattedHistoricalData)
-      set({ rawHistoricalData: response, formattedHistoricalData: [formattedHistoricalData], loading: false });
+      const data = await Promise.allSettled(promisesArray).then((results) => {
+        const resultsArray = [];
+        results.map(async (result) => {
+          if (result.status == "fulfilled") {
+            const results = await result.value;
+            const formattedResults = mapHistoricalData(results, localCurrency);
+
+            resultsArray.push(formattedResults);
+          }
+          return false;
+        });
+
+        return resultsArray;
+      });
+
+      set({
+        formattedHistoricalData: data,
+        loading: false,
+      });
     } catch (error) {
-      set({ coinHistoryData: [], loading: false });
-      console.warn("Issue fetching historical coin data", error);
+      set({ error: error.message, loading: false });
     }
   },
 
@@ -206,7 +232,6 @@ export const useCoinStore = create((set) => ({
           return Promise.all(
             responses.map(async (response) => {
               const finalData = structuredCoinData(await response);
-              console.log(response);
               return finalData;
             })
           );

@@ -20,7 +20,7 @@ const contentStyles = {
 function Layout() {
   return (
     <>
-      {/* <MenuSideBar width={SIDE_BAR_WIDTH} /> */}
+      <MenuSideBar width={SIDE_BAR_WIDTH} />
       <MenuTopBar height={TOP_BAR_HEIGHT} />
       <div
         className="w-9"

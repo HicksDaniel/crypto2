@@ -203,7 +203,7 @@ export const useCoinStore = create((set) => ({
           return Promise.all(
             responses.map(async (response) => {
               const finalData = structuredCoinData(await response);
-
+              console.log(response);
               return finalData;
             })
           );

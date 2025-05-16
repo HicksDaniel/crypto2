@@ -4,10 +4,11 @@ import TrendingDataTable from "../components/datacharts/trendingData/TrendingDat
 import HistoricalDataTable from "../components/datacharts/historicalData/HistoricalDataTable";
 
 export default function Home() {
-  return (
-    <>
-      <TrendingDataTable />
-      {/* <HistoricalDataTable search="bitcoin" /> */}
-    </>
-  );
+    return (
+        <>
+            {/* <TrendingDataTable /> */}
+            <HistoricalDataTable search="bitcoin" date="15-12-2024" localCurrency="usd" />
+            {/* <HistoricalDataTable search="bitcoin" /> */}
+        </>
+    );
 }

@@ -10,3 +10,14 @@ export function mapCoinData(coin) {
     symbol: coin?.symbol || null,
   };
 }
+export function mapHistoricalData(coin, localCurrency) {
+
+  return {
+    name: coin?.name || null,
+    image: coin?.image?.small || null,
+    currentPrice: coin?.market_data?.current_price?.[localCurrency].toFixed(2) || null,
+    totalVolume: coin?.market_data?.total_volume?.[localCurrency].toFixed(2) || null,
+    marketCap: coin?.market_data?.market_cap?.[localCurrency].toFixed(2) || null,
+    symbol: coin?.symbol || null,
+  };
+}

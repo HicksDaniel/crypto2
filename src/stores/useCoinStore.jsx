@@ -5,6 +5,7 @@ import DoughnutChart from "../components/datacharts/doughnutchart";
 import StyledLineChart from "../components/datacharts/styledlinechart";
 import CompoundLineChart from "../components/datacharts/compoundlinechart";
 import { mapCoinData } from "../assets/common/utils";
+import { mapHistoricalData } from "../assets/common/utils";
 
 const DEFAULT_DATA_STATE = [];
 const BASE_URL = "https://api.coingecko.com/api/v3";
@@ -113,20 +114,18 @@ const fetchTrendingCoinData = async () => {
 
   return data || {};
 };
-const fetchHistoryCoinData = async (value) => {
-  console.log("inside fetch request", value);
+const fetchHistoryCoinData = async (value, date) => {
   const res = await fetch(
-    `https://api.coingecko.com/api/v3/coins/bitcoin/history`,
+    `https://api.coingecko.com/api/v3/coins/${value}/history?date=${date}`,
     {
       method: "GET",
       headers: FETCH_HEADER,
     }
   );
-  console.log("fetch res", res);
+  const data = await res.json();
+
   if (!res.ok)
     throw Error(res?.error || "Oh no, shit broke. - fetchHitoryCoinData()");
-
-  const data = await res.json();
   return data || {};
 };
 
@@ -147,7 +146,8 @@ export const useCoinStore = create((set) => ({
   data: DEFAULT_DATA_STATE,
   rawTrendingData: [],
   formattedTrendingData: [],
-  coinHistoryData: [],
+  rawHistoricalData: [],
+  formattedHistoricalData: [],
   userCoins: MOCK_USER_COINS,
   loading: false,
   error: null,
@@ -162,13 +162,16 @@ export const useCoinStore = create((set) => ({
     set({ chartList: value });
   },
 
-  fetchHistoryData: async (value) => {
+  fetchHistoryData: async (coin, date, localCurrency) => {
+
     set({ loading: true });
     try {
-      const response = await fetchHistoryCoinData(value);
-      console.log("response", response);
+      const response = await fetchHistoryCoinData(coin, date);
       if (!response) throw new Error("No Results for History Data");
-      set({ coinHistoryData: response, loading: false });
+
+      const formattedHistoricalData = mapHistoricalData(response, localCurrency)
+      console.log(formattedHistoricalData)
+      set({ rawHistoricalData: response, formattedHistoricalData: [formattedHistoricalData], loading: false });
     } catch (error) {
       set({ coinHistoryData: [], loading: false });
       console.warn("Issue fetching historical coin data", error);

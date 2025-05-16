@@ -5,30 +5,31 @@ import { Column } from "primereact/column";
 import { useCoinStore } from "../../../stores/useCoinStore.jsx";
 import { dataTableStyles } from "../../../assets/common/passthroughStyles.jsx";
 
-export default function HistoricalDataTable({ search }) {
-  const { fetchHistoryData, coinHistoryData, loading } = useCoinStore();
+export default function HistoricalDataTable({ search, date, localCurrency }) {
+  const { fetchHistoryData, formattedHistoricalData, loading } = useCoinStore();
 
   useEffect(() => {
-    fetchHistoryData(search);
+
+    fetchHistoryData(search, date, localCurrency);
   }, [fetchHistoryData]);
 
-  const historicalDataReady = coinHistoryData && !loading;
+  const historicalDataReady = formattedHistoricalData && !loading;
+  { console.log(formattedHistoricalData) }
 
   return (
     <>
       <div>This is Your Home Now!</div>
-      <button onClick={() => console.log("trending")}>
+      <button onClick={() => console.log("HDT", formattedHistoricalData)}>
         Click for trending
       </button>
       <div className="flex bg-primary-600 justify-content-center p-0 m-0 w-9">
         {historicalDataReady && (
-          <DataTable pt={dataTableStyles} value={coinHistoryData}>
-            <Column header="Company" />
-            <Column sortable field="marketCapRank" header="MC Rank" />
-            <Column header="Quantity" />
-            <Column sortable field="currentPrice" header="Current Price" />
-            <Column sortable field="priceChange24h" header="24h Price Change" />
+          <DataTable pt={dataTableStyles} value={formattedHistoricalData}>
+            <Column field="name" header="Company" />
+            <Column field="currentPrice" bodyClassName="text-justify" header="Price" />
             <Column field="totalVolume" header="Total Volume" />
+            <Column sortable field="marketCap" header="Market Cap" />
+
           </DataTable>
         )}
       </div>

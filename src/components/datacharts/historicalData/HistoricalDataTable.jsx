@@ -3,44 +3,59 @@ import { eachDayOfInterval, parseISO, format } from "date-fns";
 
 import { DataTable } from "primereact/datatable";
 import { Column } from "primereact/column";
+import { Calendar } from "primereact/calendar";
 import { useCoinStore } from "../../../stores/useCoinStore.jsx";
 import { dataTableStyles } from "../../../assets/common/passthroughStyles.jsx";
 
-const today = () => new Date();
-const yesterday = () => {
-  let d = new Date();
-  d.setDate(d.getDate() - 1);
-  return d;
-};
+const startDate = new Date();
+startDate.setDate(startDate.getDate() - 1); // May 18
+
+const endDate = new Date(); // May 19
 
 export default function HistoricalDataTable() {
-  const { fetchHistoryData, formattedHistoricalData, loading } = useCoinStore();
-  const [firstDate, setFirstDate] = useState(new Date(today()));
-  const [secondDate, setSecondDate] = useState(new Date(yesterday()));
+  const { fetchHistoryData, formattedHistoricalData, searchCoin, loading } =
+    useCoinStore();
 
-  const search = "bitcoin";
+  const [calendarDates, setCalendarDates] = useState([startDate, endDate]);
+
+  const handleChange = async (dateValues) => {
+    setCalendarDates(dateValues);
+  };
 
   const localCurrency = "usd";
 
-  const start = parseISO("2025-04-11");
-  const end = parseISO("2025-05-15");
-  const dates = eachDayOfInterval({ start, end });
+  const start = calendarDates[0];
+  const end = calendarDates[1];
+  const dates = start && end ? eachDayOfInterval({ start, end }) : [];
 
   useEffect(() => {
-    console.log(firstDate);
-    console.log(secondDate);
-    fetchHistoryData(search, dates, localCurrency);
-  }, []);
+    if (start && end && dates.length > 0) {
+      fetchHistoryData(searchCoin, dates, localCurrency);
+    }
+  }, [calendarDates, start, end, JSON.stringify(searchCoin)]);
 
   const historicalDataReady = formattedHistoricalData && !loading;
 
   return (
     <>
-      <div>This is Your Home Now!</div>
+      {loading && <div>Loading historical data...</div>}
 
-      <button onClick={() => console.log("HDT", formattedHistoricalData)}>
+      <div>Searching Historical Data for: {searchCoin}</div>
+
+      <button onClick={() => console.log("HDT", searchCoin)}>
         Click for trending
       </button>
+
+      <div className="card w-6 flex justify-content-center">
+        <Calendar
+          className="w-12"
+          value={calendarDates}
+          onChange={(e) => handleChange(e.value)}
+          selectionMode="range"
+          readOnlyInput
+          hideOnRangeSelection
+        />
+      </div>
       <div className="flex bg-primary-600 justify-content-center p-0 m-0 w-9">
         {historicalDataReady && (
           <DataTable pt={dataTableStyles} value={formattedHistoricalData}>

@@ -27,6 +27,8 @@ const MOCK_USER_COINS = [
   { name: "dogecoin", owned: 380000 },
 ];
 
+const DEFAULT_COIN = "bitcoin";
+
 const DEFAULT_CHART_LIST = [
   {
     name: "Compound Line",
@@ -102,59 +104,87 @@ const DEFAULT_CHART_LIST = [
 ];
 
 const fetchTrendingCoinData = async () => {
-  const res = await fetch(
-    "https://api.coingecko.com/api/v3/search/trending?coins",
-    {
-      method: "GET",
-      headers: FETCH_HEADER,
-    }
-  );
-  if (!res.ok)
-    throw Error(res?.error || "Oh no, shit broke. - fetchCoinData()");
-  const data = await res.json();
+  try {
+    const res = await fetch(
+      "https://api.coingecko.com/api/v3/search/trending",
+      {
+        method: "GET",
+        headers: FETCH_HEADER,
+      }
+    );
 
-  return data || {};
+    if (!res.ok)
+      throw new Error(
+        `Failed to fetch trending coins: ${res.status} ${res.statusText}`
+      );
+
+    const data = await res.json();
+    return data || {};
+  } catch (error) {
+    console.error("Error fetching trending coin data:", error);
+  }
 };
-const fetchHistoryCoinData = async (value, date) => {
-  const formattedFetchDate = format(date, "dd-MM-yyyy");
 
-  const formattedDisplayDate = format(date, "MM-dd-yyyy");
-  const res = await fetch(
-    `https://api.coingecko.com/api/v3/coins/${value}/history?date=${formattedFetchDate}`,
-    {
-      method: "GET",
-      headers: FETCH_HEADER,
-    }
-  );
-  const data = await res.json();
+const fetchHistoryCoinData = async (coinId, date) => {
+  console.log(date);
 
-  const finalData = {
-    ...data,
-    date: formattedDisplayDate,
-  };
+  fetch("http://localhost:3000/api/coin-history?coinId=bitcoin&date=01-12-2023")
+    .then((res) => res.json())
+    .then((data) => console.log(data))
+    .catch((err) => console.error("Error:", err));
+  // if (!coinId || !date) {
+  //   console.warn("Invalid value or date passed to fetchHistoryCoinData");
+  //   return;
+  // }
+  // try {
+  //   const formattedFetchDate = format(date, "dd-MM-yyyy");
+  //   const formattedDisplayDate = format(date, "MM-dd-yyyy");
 
-  if (!res.ok)
-    throw Error(res?.error || "Oh no, shit broke. - fetchHitoryCoinData()");
-
-  console.log(finalData);
-  return finalData || {};
+  //   const res = await fetch(
+  //     `http://localhost:3000/api/coin-history?coinId=${coinId}&date=${formattedFetchDate}`
+  //   );
+  //   console.log(res);
+  //   if (!res.ok) {
+  //     throw new Error(`API error: ${res.status} ${res.statusText}`);
+  //   }
+  //   console.log("this is response", res);
+  //   const data = await res.json();
+  //   return {
+  //     ...data,
+  //     date: formattedDisplayDate,
+  //   };
+  // } catch (error) {
+  //   console.error("Error fetching historical coin data:", error);
+  //   throw error;
+  // }
 };
 
 const fetchCoinData = async (coinName) => {
-  const res = await fetch(`${BASE_URL}/coins/${coinName}`, {
-    method: "GET",
-    headers: FETCH_HEADER,
-  });
+  if (!coinName) {
+    console.warn("fetchCoinData called with invalid coinName.");
+    return null;
+  }
+  try {
+    const res = await fetch(`${BASE_URL}/coins/${coinName}`, {
+      method: "GET",
+      headers: FETCH_HEADER,
+    });
 
-  if (!res.ok)
-    throw Error(res?.error || "Oh no, shit broke. - fetchCoinData()");
-  const data = await res.json();
-
-  return data || {};
+    if (!res.ok)
+      throw new Error(
+        `Failed to fetch coin data: ${res.status} ${res.statusText}`
+      );
+    const data = await res.json();
+    return data || {};
+  } catch (error) {
+    console.error("Error in fetchCoinData:", error);
+    throw error;
+  }
 };
 
 export const useCoinStore = create((set) => ({
   data: DEFAULT_DATA_STATE,
+  searchCoin: DEFAULT_COIN,
   rawTrendingData: [],
   formattedTrendingData: [],
   rawHistoricalData: [],
@@ -172,34 +202,42 @@ export const useCoinStore = create((set) => ({
   updateChartList: (value) => {
     set({ chartList: value });
   },
+  updateSearchCoin: (value) => {
+    set({ searchCoin: value });
+  },
 
   fetchHistoryData: async (coin, dates, localCurrency) => {
     set({ loading: true, error: null });
     try {
-      const promisesArray = dates.map(
-        async (date) => await fetchHistoryCoinData(coin, date)
+      const promisesArray = dates.map((date) =>
+        fetchHistoryCoinData(coin, date)
       );
 
-      const data = await Promise.allSettled(promisesArray).then((results) => {
-        const resultsArray = [];
-        results.map(async (result) => {
-          if (result.status == "fulfilled") {
-            const results = await result.value;
-            const formattedResults = mapHistoricalData(results, localCurrency);
+      const results = await Promise.allSettled(promisesArray);
+
+      const resultsArray = [];
+      for (let result of results) {
+        if (result.status === "fulfilled") {
+          try {
+            const formattedResults = mapHistoricalData(
+              result.value,
+              localCurrency
+            );
 
             resultsArray.push(formattedResults);
+          } catch (err) {
+            console.error("Error formatting historical data:", err);
           }
-          return false;
-        });
-
-        return resultsArray;
-      });
-
+        } else {
+          console.error("Failed to fetch data for a date:", result.reason);
+        }
+      }
       set({
-        formattedHistoricalData: data,
+        formattedHistoricalData: resultsArray,
         loading: false,
       });
     } catch (error) {
+      console.error("Error fetching history data:", error);
       set({ error: error.message, loading: false });
     }
   },

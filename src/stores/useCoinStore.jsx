@@ -127,39 +127,40 @@ const fetchTrendingCoinData = async () => {
 
 const fetchHistoryCoinData = async (coinId, date) => {
   console.log(date);
+  const formattedFetchDate = format(date, "dd-MM-yyyy");
+  const formattedDisplayDate = format(date, "MM-dd-yyyy");
 
-  fetch("http://localhost:3000/api/coin-history?coinId=bitcoin&date=01-12-2023")
-    .then((res) => res.json())
-    .then((data) => console.log(data))
-    .catch((err) => console.error("Error:", err));
-  // if (!coinId || !date) {
-  //   console.warn("Invalid value or date passed to fetchHistoryCoinData");
-  //   return;
-  // }
-  // try {
-  //   const formattedFetchDate = format(date, "dd-MM-yyyy");
-  //   const formattedDisplayDate = format(date, "MM-dd-yyyy");
 
-  //   const res = await fetch(
-  //     `http://localhost:3000/api/coin-history?coinId=${coinId}&date=${formattedFetchDate}`
-  //   );
-  //   console.log(res);
-  //   if (!res.ok) {
-  //     throw new Error(`API error: ${res.status} ${res.statusText}`);
-  //   }
-  //   console.log("this is response", res);
-  //   const data = await res.json();
-  //   return {
-  //     ...data,
-  //     date: formattedDisplayDate,
-  //   };
-  // } catch (error) {
-  //   console.error("Error fetching historical coin data:", error);
-  //   throw error;
-  // }
+  if (!coinId || !date) {
+    console.warn("Invalid value or date passed to fetchHistoryCoinData");
+    return;
+  }
+  try {
+    const formattedFetchDate = format(date, "dd-MM-yyyy");
+    const formattedDisplayDate = format(date, "MM-dd-yyyy");
+
+    const res = await fetch(
+      `http://localhost:3000/api/coin-history?coinId=${coinId}&date=${formattedFetchDate}`
+    );
+
+    if (!res.ok) {
+      throw new Error(`API error: ${res.status} ${res.statusText}`);
+    }
+
+    const data = await res.json();
+    return {
+      ...data,
+      date: formattedDisplayDate,
+    };
+  } catch (error) {
+    console.error("Error fetching historical coin data:", error);
+    throw error;
+  }
 };
 
 const fetchCoinData = async (coinName) => {
+  coinName = coinName.toLowerCase()
+  console.log(coinName)
   if (!coinName) {
     console.warn("fetchCoinData called with invalid coinName.");
     return null;
@@ -171,11 +172,12 @@ const fetchCoinData = async (coinName) => {
     });
 
     if (!res.ok)
-      throw new Error(
+      throw new Error(+
         `Failed to fetch coin data: ${res.status} ${res.statusText}`
       );
     const data = await res.json();
     return data || {};
+
   } catch (error) {
     console.error("Error in fetchCoinData:", error);
     throw error;
@@ -258,25 +260,24 @@ export const useCoinStore = create((set) => ({
     }
   },
 
-  fetchData: async () => {
-    const userCoins = MOCK_USER_COINS;
+  fetchData: async (coin) => {
+    if (!coin || typeof coin !== 'string' || !coin.trim()) {
+      console.warn("Invalid coin parameter:", coin);
+      set({ error: "Invalid coin parameter", loading: false });
+      return;
+    }
 
     set({ loading: true, error: null });
-    try {
-      const promisesArray = userCoins.map((res) => fetchCoinData(res.name));
 
-      await Promise.all(promisesArray)
-        .then((responses) => {
-          return Promise.all(
-            responses.map(async (response) => {
-              const finalData = structuredCoinData(await response);
-              return finalData;
-            })
-          );
-        })
-        .then((d) => {
-          set({ data: d, loading: false, userCoins });
-        });
+    try {
+      const coinData = await fetchCoinData(coin);
+      if (!coinData) {
+        throw new Error("No data returned from fetchCoinData");
+      }
+
+      const formattedData = await structuredCoinData(coinData);
+      set({ data: formattedData, loading: false });
+
     } catch (error) {
       set({ error: error.message, loading: false });
     }

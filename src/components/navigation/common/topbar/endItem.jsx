@@ -1,12 +1,17 @@
+import { useState } from "react";
 import { InputText } from "primereact/inputtext";
 import { Avatar } from "primereact/avatar";
 import { useCoinStore } from "../../../../stores/useCoinStore";
 
 export function EndItem() {
   const { searchCoin, updateSearchCoin, loading } = useCoinStore();
+  const [searchValue, setSearchValue] = useState("")
 
+  const handleChange = (value) => {
+    setSearchValue(value);
+  };
   const handleSubmit = (value) => {
-    updateSearchCoin(value);
+    updateSearchCoin(searchValue);
   };
   return (
     <div
@@ -15,7 +20,8 @@ export function EndItem() {
     >
       <InputText
         placeholder="Search"
-        onChange={(e) => handleSubmit(e.target.value)}
+        onChange={(e) => handleChange(e.target.value)}
+        onBlur={handleSubmit}
         type="text"
         className=" w-12 "
       />

@@ -13,7 +13,6 @@ export default function Home() {
             {/* <TrendingDataTable /> */}
             <HistoricalDataTable />
 
-            <Outlet />
             {/* <HistoricalDataTable search="bitcoin" /> */}
         </>
     );

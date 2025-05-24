@@ -22,12 +22,10 @@ export const router = createBrowserRouter([
             {
                 path: "/Home",
                 element: <Home />,
-                children: [
-                    {
-                        path: "coin",
-                        element: <CoinInfo />,
-                    }
-                ]
+            },
+            {
+                path: "/Coin",
+                element: <CoinInfo />,
             },
         ],
     },

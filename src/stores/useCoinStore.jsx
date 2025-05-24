@@ -199,6 +199,11 @@ export const useCoinStore = create((set, get) => ({
   chartList: [],
   visibleCharts: [],
   coinList: [],
+  timeLine: "1",
+
+  updateTimeLine: (value) => {
+    set({ timeLine: value })
+  },
 
   updateVisibleCharts: (value) => {
     set({ visibleCharts: value });
@@ -212,7 +217,10 @@ export const useCoinStore = create((set, get) => ({
 
   fetchCoinList: async () => {
     try {
-      const response = await fetch("https://api.coingecko.com/api/v3/coins/list");
+      const response = await fetch("https://api.coingecko.com/api/v3/coins/list", {
+        method: "GET",
+        headers: FETCH_HEADER,
+      },);
       const data = await response.json();
       set({ coinList: data });
     } catch (error) {
@@ -256,10 +264,10 @@ export const useCoinStore = create((set, get) => ({
     }
   },
   fetchSingleCoinData: async () => {
-    const { searchCoin } = get()
+    const { searchCoin, timeLine } = get()
 
     try {
-      const response = await fetch(`https://api.coingecko.com/api/v3/coins/${searchCoin}/market_chart?vs_currency=usd&days=1`,
+      const response = await fetch(`https://api.coingecko.com/api/v3/coins/${searchCoin}/market_chart?vs_currency=usd&days=${timeLine}`,
         {
           method: "GET",
           headers: FETCH_HEADER,

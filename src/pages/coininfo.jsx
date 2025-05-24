@@ -1,110 +1,138 @@
-
-import React, { useState, useEffect } from "react";
-import { Chart } from "primereact/chart";
-import { useCoinStore } from "../stores/useCoinStore";
-import { enUS } from 'date-fns/locale';
-
-import 'chartjs-adapter-date-fns';
+import React from 'react';
+import { Button } from 'primereact/button';
+import { ButtonGroup } from 'primereact/buttongroup';
+import PriceTimeline from '../components/datacharts/coinDashboard/pricetimeline';
+import { useCoinStore } from '../stores/useCoinStore';
 
 
-const FETCH_HEADER = {
-    accept: "application/json",
-    "x-cg-demo-api-key": "CG-c7WmWDGxgBsFBma9zh72TkTC",
-};
+const commonButtonStyles = {
+    fontSize: ".75rem",
+    minWidth: "0",
+    padding: "0",
+    height: "30px",
+    overflow: "hidden",
+    textOverflow: "ellipsis",
+    whiteSpace: "nowrap",
+}
+
+
 
 export default function CoinInfo() {
+    const { updateTimeLine } =
+        useCoinStore();
 
-    const [chartData, setChartData] = useState({});
-    const [chartOptions, setChartOptions] = useState({});
-
-    const { singleCoinData, searchCoin, loading, error, fetchSingleCoinData } = useCoinStore();
-
-
-
-
-    const selectedCoin = searchCoin;
-
-
-
-
-
-
-
-
-
-    useEffect(() => {
-        const documentStyle = getComputedStyle(document.documentElement);
-        const timeStamps = singleCoinData?.prices?.map(item => new Date(item[0]));
-        const prices = singleCoinData?.prices?.map(item => item[1]);
-
-        const data = {
-            labels: timeStamps,
-            datasets: [
-                {
-                    label: `${selectedCoin} Price (USD)`,
-                    data: prices,
-                    fill: true,
-                    tension: 0.4,
-                    borderColor: documentStyle.getPropertyValue("--green-500"),
-                },
-
-            ],
-        };
-        const options = {
-            maintainAspectRatio: false,
-            aspectRatio: 2,
-            responsive: true,
-            plugins: {
-                legend: {
-
-                },
-            },
-            scales: {
-                x: {
-                    type: 'time',
-                    time: {
-                        unit: 'minute',
-                        stepSize: 5,
-                        tooltipFormat: 'HH:mm'
-                    },
-                    adapters: {
-                        date: {
-                            locale: enUS,
-                        },
-                    },
-                    title: {
-                        display: true,
-                        text: 'Time'
-                    }
-                },
-                y: {
-                    title: {
-                        display: true,
-                        text: 'Price (USD)'
-                    }
-                }
-            },
-        };
-
-        setChartData(data);
-        setChartOptions(options);
-    }, [singleCoinData, searchCoin]);
-
-    useEffect(() => {
-        fetchSingleCoinData();
-    }, [searchCoin]);
+    const handleClick = (value) => {
+        updateTimeLine(value)
+    }
 
     return (
-        <>
-            <button onClick={() => console.log(singleCoinData, searchCoin)}>click here</button>
-            <Chart
-                style={{ display: "flex", justifySelf: "center", width: "95%", height: "50rem" }}
-                className=""
-                type="line"
-                data={chartData}
-                options={chartOptions}
-            />
-        </>
+        <div style={{ display: "flex", width: "1280px", background: "rgba(90,90,90,0.2)" }}>
+            <div style={{ padding: "10px", width: "40%" }}>
+                <h1>test</h1>
+            </div>
 
+            <div style={{ padding: "10px", width: "60%", background: "rgba(90,90,90,0.5)" }}>
+                <div style={{ display: "flex", width: "100%", justifyContent: "space-evenly", gap: "1rem" }}>
+
+                    <ButtonGroup
+                        pt={{
+                            root: {
+                                className: 'my-custom-button-group',
+                                style: { display: "flex", padding: "0px", margin: "0px", width: "275px", borderRadius: '8px' }
+                            }
+                        }}
+                    >
+                        <Button style={{
+                            width: "55px",
+                            ...commonButtonStyles
+                        }} label="Price" />
+                        <Button style={{
+                            width: "110px",
+                            ...commonButtonStyles
+                        }} label="Market Cap" />
+                        <Button style={{
+                            width: "110px",
+                            ...commonButtonStyles
+                        }} label="TradingView" />
+                    </ButtonGroup>
+
+                    <ButtonGroup
+                        pt={{
+                            root: {
+                                className: 'my-custom-button-group',
+                                style: { display: "flex", width: "10%" }
+                            }
+                        }}
+                    >
+                        <Button style={{
+                            width: "30px",
+                            ...commonButtonStyles
+                        }} label="L" disabled tooltip="Coming soon" />
+                        <Button style={{
+                            width: "30px",
+                            ...commonButtonStyles
+                        }} label="T" disabled tooltip="Coming soon" />
+                    </ButtonGroup>
+
+                    <ButtonGroup
+                        pt={{
+                            root: {
+                                className: 'my-custom-button-group',
+                                style: { width: "55%", borderRadius: '8px' }
+                            }
+                        }}
+                    >
+                        <Button style={{
+                            width: "35px",
+                            ...commonButtonStyles
+                        }} onClick={() => handleClick("1")} label="24h" />
+                        <Button style={{
+                            width: "30px",
+                            ...commonButtonStyles
+                        }} onClick={() => handleClick("7")} label="7d" />
+                        <Button style={{
+                            width: "30px",
+                            ...commonButtonStyles
+                        }} onClick={() => handleClick("30")} label="1m" />
+                        <Button style={{
+                            width: "30px",
+                            ...commonButtonStyles
+                        }} onClick={() => handleClick("90")} label="3m" />
+                        <Button style={{
+                            width: "30px",
+                            ...commonButtonStyles
+                        }} onClick={() => handleClick("365")} label="1y" />
+                        <Button style={{
+                            width: "40px",
+                            ...commonButtonStyles
+                        }} onClick={() => handleClick("max")} label="Max" />
+                        <Button style={{
+                            width: "40px",
+                            ...commonButtonStyles
+                        }} label="LOG" />
+                        <Button style={{
+                            width: "40px",
+                            ...commonButtonStyles
+                        }} label="tbd" disabled tooltip="Coming soon" />
+                        <Button style={{
+                            width: "40px",
+                            ...commonButtonStyles
+                        }} label="tbd" disabled tooltip="Coming soon" />
+                        <Button style={{
+                            width: "40px",
+                            ...commonButtonStyles
+                        }} label="tbd" disabled tooltip="Coming soon" />
+                    </ButtonGroup>
+                </div>
+
+                <div>
+                    <PriceTimeline />
+                </div>
+
+                <div>
+                    <h2>PlaceHolder</h2>
+                </div>
+            </div>
+        </div>
     );
 }

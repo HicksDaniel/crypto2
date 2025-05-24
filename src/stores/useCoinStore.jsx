@@ -184,9 +184,10 @@ const fetchCoinData = async (coinName) => {
   }
 };
 
-export const useCoinStore = create((set) => ({
+export const useCoinStore = create((set, get) => ({
   data: DEFAULT_DATA_STATE,
   searchCoin: DEFAULT_COIN,
+  singleCoinData: null,
   rawTrendingData: [],
   formattedTrendingData: [],
   rawHistoricalData: [],
@@ -197,6 +198,7 @@ export const useCoinStore = create((set) => ({
   chartButtonList: DEFAULT_CHART_LIST,
   chartList: [],
   visibleCharts: [],
+  coinList: [],
 
   updateVisibleCharts: (value) => {
     set({ visibleCharts: value });
@@ -206,6 +208,16 @@ export const useCoinStore = create((set) => ({
   },
   updateSearchCoin: (value) => {
     set({ searchCoin: value });
+  },
+
+  fetchCoinList: async () => {
+    try {
+      const response = await fetch("https://api.coingecko.com/api/v3/coins/list");
+      const data = await response.json();
+      set({ coinList: data });
+    } catch (error) {
+      console.error("Failed to fetch coin list:", error);
+    }
   },
 
   fetchHistoryData: async (coin, dates, localCurrency) => {
@@ -241,6 +253,25 @@ export const useCoinStore = create((set) => ({
     } catch (error) {
       console.error("Error fetching history data:", error);
       set({ error: error.message, loading: false });
+    }
+  },
+  fetchSingleCoinData: async () => {
+    const { searchCoin } = get()
+
+    try {
+      const response = await fetch(`https://api.coingecko.com/api/v3/coins/${searchCoin}/market_chart?vs_currency=usd&days=1`,
+        {
+          method: "GET",
+          headers: FETCH_HEADER,
+        },
+      );
+      const data = await response.json()
+      set({ singleCoinData: data, loading: false })
+
+      return data;
+    } catch (error) {
+      set({ loading: false, error: "Failed to fetch data" });
+      console.error("Error fetching 24h data:", error)
     }
   },
 

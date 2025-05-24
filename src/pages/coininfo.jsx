@@ -2,6 +2,9 @@
 import React, { useState, useEffect } from "react";
 import { Chart } from "primereact/chart";
 import { useCoinStore } from "../stores/useCoinStore";
+import { enUS } from 'date-fns/locale';
+
+import 'chartjs-adapter-date-fns';
 
 
 const FETCH_HEADER = {
@@ -13,60 +16,34 @@ export default function CoinInfo() {
 
     const [chartData, setChartData] = useState({});
     const [chartOptions, setChartOptions] = useState({});
-    const { data, userCoins, loading, error, fetchData } = useCoinStore();
+
+    const { singleCoinData, searchCoin, loading, error, fetchSingleCoinData } = useCoinStore();
 
 
 
-    const selectedCoin = data
 
-    const get24hCoinData = async () => {
-        try {
-            const response = await fetch("https://api.coingecko.com/api/v3/coins/bitcoin/market_chart?vs_currency=usd&days=1",
-                {
-                    method: "GET",
-                    headers: FETCH_HEADER,
-                },
-            );
-            const data = await response.json()
-            console.log("data", data)
-            return data;
-        } catch {
-            console.error("Error fetching 24h data:", error)
-        }
-    }
+    const selectedCoin = searchCoin;
 
 
-    const calculatePercentageChange = (coinData, userData) => {
-        const currentPrice = coinData?.currentPrice;
-        return [
-            userData * currentPrice,
-            (userData * currentPrice) / (1 + coinData?.pcp_1h / 100),
-            (userData * currentPrice) / (1 + coinData?.pcp_24h / 100),
-            (userData * currentPrice) / (1 + coinData?.pcp_7day / 100),
-            (userData * currentPrice) / (1 + coinData?.pcp_14day / 100),
-            (userData * currentPrice) / (1 + coinData?.pcp_30day / 100),
-            (userData * currentPrice) / (1 + coinData?.pcp_60day / 100),
-            (userData * currentPrice) / (1 + coinData?.pcp_200day / 100),
-            (userData * currentPrice) / (1 + coinData?.pcp_1year / 100),
-        ];
-    };
+
+
+
+
+
+
 
     useEffect(() => {
         const documentStyle = getComputedStyle(document.documentElement);
-        const textColor = documentStyle.getPropertyValue("--text-color");
-        const textColorSecondary = documentStyle.getPropertyValue(
-            "--text-color-secondary"
-        );
-        const surfaceBorder = documentStyle.getPropertyValue("--surface-border");
+        const timeStamps = singleCoinData?.prices?.map(item => new Date(item[0]));
+        const prices = singleCoinData?.prices?.map(item => item[1]);
+
         const data = {
-            labels: [0, 0.15, 1, 7, 14, 30, 60, 200, 365],
+            labels: timeStamps,
             datasets: [
                 {
-                    label: selectedCoin?.name,
-                    data: calculatePercentageChange(
-                        selectedCoin.marketData?.pricing, 1
-                    ),
-                    fill: false,
+                    label: `${selectedCoin} Price (USD)`,
+                    data: prices,
+                    fill: true,
                     tension: 0.4,
                     borderColor: documentStyle.getPropertyValue("--green-500"),
                 },
@@ -75,7 +52,7 @@ export default function CoinInfo() {
         };
         const options = {
             maintainAspectRatio: false,
-            aspectRatio: 1,
+            aspectRatio: 2,
             responsive: true,
             plugins: {
                 legend: {
@@ -84,49 +61,44 @@ export default function CoinInfo() {
             },
             scales: {
                 x: {
-                    afterTickToLabelConversion: (ctx) => {
-                        ctx.ticks = [];
-                        ctx.ticks.push({ value: 0, label: "Current" });
-                        ctx.ticks.push({ value: 0.15, label: "1h" });
-                        ctx.ticks.push({ value: 1, label: "24h" });
-                        ctx.ticks.push({ value: 7, label: "7 Days" });
-                        ctx.ticks.push({ value: 14, label: "14 Days" });
-                        ctx.ticks.push({ value: 30, label: "30 Days" });
-                        ctx.ticks.push({ value: 60, label: "60 Days" });
-                        ctx.ticks.push({ value: 200, label: "200 Days" });
-                        ctx.ticks.push({ value: 365, label: "1 year" });
+                    type: 'time',
+                    time: {
+                        unit: 'minute',
+                        stepSize: 5,
+                        tooltipFormat: 'HH:mm'
                     },
-                    reverse: true,
-                    type: "logarithmic",
-
-                    // ticks: {
-                    //   color: textColorSecondary,
-                    // },
-                    // grid: {
-                    //   color: surfaceBorder,
-                    // },
+                    adapters: {
+                        date: {
+                            locale: enUS,
+                        },
+                    },
+                    title: {
+                        display: true,
+                        text: 'Time'
+                    }
                 },
                 y: {
-                    // ticks: {
-                    //   color: textColorSecondary,
-                    // },
-                    // grid: {
-                    //   color: surfaceBorder,
-                    // },
-                },
+                    title: {
+                        display: true,
+                        text: 'Price (USD)'
+                    }
+                }
             },
         };
 
         setChartData(data);
         setChartOptions(options);
-    }, [data]);
+    }, [singleCoinData, searchCoin]);
+
+    useEffect(() => {
+        fetchSingleCoinData();
+    }, [searchCoin]);
 
     return (
         <>
-            <button onClick={() => console.log(get24hCoinData())}>click here</button>
+            <button onClick={() => console.log(singleCoinData, searchCoin)}>click here</button>
             <Chart
-                style={{ display: "flex", justifySelf: "center", width: "95%", height: "20rem" }}
-
+                style={{ display: "flex", justifySelf: "center", width: "95%", height: "50rem" }}
                 className=""
                 type="line"
                 data={chartData}

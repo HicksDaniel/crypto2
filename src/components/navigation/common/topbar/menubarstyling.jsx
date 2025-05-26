@@ -4,15 +4,15 @@ export const menuBarStyling = {
     },
     menu: {
         style: {
+            display: "flex",
+            justifyContent: "space-between",
             width: "45%",
             maxWidth: "500px"
         }
     },
     menuitem: {
-        style: { display: "flex", width: "33.33%", padding: "10px", justifyContent: "center" },
+        style: { display: "flex", padding: "10px" },
     },
-
-
     start: {
         style: { width: "20%", minWidth: "200px" },
     },

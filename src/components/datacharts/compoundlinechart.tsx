@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Chart } from "primereact/chart";
 import { useCoinStore } from "../../stores/useCoinStore.jsx";
+import { calculatePercentageChange } from "../../assets/common/utils.jsx";
 
 export default function CompoundLineChart() {
   const [chartData, setChartData] = useState({});
@@ -35,23 +36,6 @@ export default function CompoundLineChart() {
     return sum;
   };
 
-  const calculatePercentageChange = (coinData, userData) => {
-    const currentPrice = coinData?.currentPrice;
-
-    const userCoinValue = [
-      userData * currentPrice,
-      (userData * currentPrice) / (1 + coinData?.pcp_1h / 100),
-      (userData * currentPrice) / (1 + coinData?.pcp_24h / 100),
-      (userData * currentPrice) / (1 + coinData?.pcp_7day / 100),
-      (userData * currentPrice) / (1 + coinData?.pcp_14day / 100),
-      (userData * currentPrice) / (1 + coinData?.pcp_30day / 100),
-      (userData * currentPrice) / (1 + coinData?.pcp_60day / 100),
-      (userData * currentPrice) / (1 + coinData?.pcp_200day / 100),
-      (userData * currentPrice) / (1 + coinData?.pcp_1year / 100),
-    ];
-
-    return userCoinValue;
-  };
 
   useEffect(() => {
     const documentStyle = getComputedStyle(document.documentElement);

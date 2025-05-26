@@ -21,3 +21,13 @@ export const dataTableStyles = {
     style: { height: "100%" },
   },
 };
+
+export const commonButtonStyles = {
+  fontSize: ".75rem",
+  minWidth: "0",
+  padding: "0",
+  height: "30px",
+  overflow: "hidden",
+  textOverflow: "ellipsis",
+  whiteSpace: "nowrap",
+}

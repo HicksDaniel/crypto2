@@ -3,134 +3,82 @@ import { Button } from 'primereact/button';
 import { ButtonGroup } from 'primereact/buttongroup';
 import PriceTimeline from '../components/datacharts/coinDashboard/pricetimeline';
 import { useCoinStore } from '../stores/useCoinStore';
-
-
-const commonButtonStyles = {
-    fontSize: ".75rem",
-    minWidth: "0",
-    padding: "0",
-    height: "30px",
-    overflow: "hidden",
-    textOverflow: "ellipsis",
-    whiteSpace: "nowrap",
-}
-
-
+import { dataViewButtons, timeChangeButtons } from '../assets/common/utils';
+import { commonButtonStyles } from '../assets/common/passthroughStyles';
+import { ChangeOverTime } from '../components/datacharts/coindashboard/changeovertime';
 
 export default function CoinInfo() {
-    const { updateTimeLine } =
-        useCoinStore();
+    const timeLine = useCoinStore(state => state.timeLine);
+    const updateTimeLine = useCoinStore(state => state.updateTimeLine);
+    const selectedDataKey = useCoinStore(state => state.selectedDataKey);
+    const updateDataKey = useCoinStore(state => state.updateDataKey);
 
-    const handleClick = (value) => {
-        updateTimeLine(value)
-    }
+    const handleTimeChange = (value) => {
+        if (value === timeLine) return;
+        updateTimeLine(value);
+    };
+
+    const handleDataViewChange = (value) => {
+        if (value === selectedDataKey) return;
+        updateDataKey(value);
+    };
+
+
 
     return (
-        <div style={{ display: "flex", width: "1280px", background: "rgba(90,90,90,0.2)" }}>
-            <div style={{ padding: "10px", width: "40%" }}>
+        <div className="flex w-12 h-full" style={{ background: "rgba(90,90,90,0.2)" }}>
+            <div className="p-2 w-4">
                 <h1>test</h1>
             </div>
 
-            <div style={{ padding: "10px", width: "60%", background: "rgba(90,90,90,0.5)" }}>
-                <div style={{ display: "flex", width: "100%", justifyContent: "space-evenly", gap: "1rem" }}>
+            <div className="flex flex-column align-items-center p-2 w-8 h-full">
+                <div className="flex w-6 justify-content-center gap-1">
+                    <ButtonGroup className="w-5">
+                        {dataViewButtons.map((btn, index) => (
+                            <Button
+                                key={btn.label + index}
+                                onClick={() => handleDataViewChange(btn.value)}
+                                disabled={btn.disabbled}
+                                style={{
+                                    width: btn.width,
 
-                    <ButtonGroup
-                        pt={{
-                            root: {
-                                className: 'my-custom-button-group',
-                                style: { display: "flex", padding: "0px", margin: "0px", width: "275px", borderRadius: '8px' }
-                            }
-                        }}
-                    >
-                        <Button style={{
-                            width: "55px",
-                            ...commonButtonStyles
-                        }} label="Price" />
-                        <Button style={{
-                            width: "110px",
-                            ...commonButtonStyles
-                        }} label="Market Cap" />
-                        <Button style={{
-                            width: "110px",
-                            ...commonButtonStyles
-                        }} label="TradingView" />
+                                    ...commonButtonStyles,
+                                    backgroundColor: selectedDataKey === btn.value ? "#007ad9" : undefined,
+                                    color: selectedDataKey === btn.value ? "white" : undefined,
+                                }}
+                                label={btn.label}
+                            />
+                        ))}
+                    </ButtonGroup>
+                    <ButtonGroup className="w-2">
+                        <Button key="L" style={{ width: "30px", ...commonButtonStyles }} label="L" disabled tooltip="Coming soon" />
+                        <Button key="T" style={{ width: "30px", ...commonButtonStyles }} label="T" disabled tooltip="Coming soon" />
                     </ButtonGroup>
 
-                    <ButtonGroup
-                        pt={{
-                            root: {
-                                className: 'my-custom-button-group',
-                                style: { display: "flex", width: "10%" }
-                            }
-                        }}
-                    >
-                        <Button style={{
-                            width: "30px",
-                            ...commonButtonStyles
-                        }} label="L" disabled tooltip="Coming soon" />
-                        <Button style={{
-                            width: "30px",
-                            ...commonButtonStyles
-                        }} label="T" disabled tooltip="Coming soon" />
-                    </ButtonGroup>
-
-                    <ButtonGroup
-                        pt={{
-                            root: {
-                                className: 'my-custom-button-group',
-                                style: { width: "55%", borderRadius: '8px' }
-                            }
-                        }}
-                    >
-                        <Button style={{
-                            width: "35px",
-                            ...commonButtonStyles
-                        }} onClick={() => handleClick("1")} label="24h" />
-                        <Button style={{
-                            width: "30px",
-                            ...commonButtonStyles
-                        }} onClick={() => handleClick("7")} label="7d" />
-                        <Button style={{
-                            width: "30px",
-                            ...commonButtonStyles
-                        }} onClick={() => handleClick("30")} label="1m" />
-                        <Button style={{
-                            width: "30px",
-                            ...commonButtonStyles
-                        }} onClick={() => handleClick("90")} label="3m" />
-                        <Button style={{
-                            width: "30px",
-                            ...commonButtonStyles
-                        }} onClick={() => handleClick("365")} label="1y" />
-                        <Button style={{
-                            width: "40px",
-                            ...commonButtonStyles
-                        }} onClick={() => handleClick("max")} label="Max" />
-                        <Button style={{
-                            width: "40px",
-                            ...commonButtonStyles
-                        }} label="LOG" />
-                        <Button style={{
-                            width: "40px",
-                            ...commonButtonStyles
-                        }} label="tbd" disabled tooltip="Coming soon" />
-                        <Button style={{
-                            width: "40px",
-                            ...commonButtonStyles
-                        }} label="tbd" disabled tooltip="Coming soon" />
-                        <Button style={{
-                            width: "40px",
-                            ...commonButtonStyles
-                        }} label="tbd" disabled tooltip="Coming soon" />
+                    <ButtonGroup className="w-5">
+                        {timeChangeButtons.map(btn => (
+                            <Button
+                                key={btn.value}
+                                disabled={btn.disabled}
+                                onClick={() => handleTimeChange(btn.value)}
+                                style={{
+                                    width: btn.width,
+                                    ...commonButtonStyles,
+                                    backgroundColor: timeLine === btn.value ? "#007ad9" : undefined,
+                                    color: timeLine === btn.value ? "white" : undefined,
+                                }}
+                                label={btn.label}
+                            />
+                        ))}
                     </ButtonGroup>
                 </div>
 
-                <div>
+                <div className="flex w-12 h-full" >
                     <PriceTimeline />
                 </div>
 
-                <div>
-                    <h2>PlaceHolder</h2>
+                <div className="flex justify-content-center w-12 h-20rem">
+                    <ChangeOverTime />
                 </div>
             </div>
         </div>

@@ -1,17 +1,20 @@
 import { Badge } from "primereact/badge";
 import { useNavigate } from "react-router";
 
-function itemRenderer(item) {
+function ItemRenderer({ item }) {
   const navigate = useNavigate();
+
   const handleRouting = (toRoute) => {
     navigate(toRoute);
   };
+
   return (
     <a
       onClick={() => {
         handleRouting(item.label);
       }}
       className="flex text-xl px-2 align-items-center"
+      style={{ cursor: "pointer" }} // make it clear it's clickable
     >
       <span className={item.icon} />
       <span className="m-1">{item.label}</span>
@@ -24,16 +27,21 @@ export const topbarMenuItems = [
   {
     label: "Home",
     icon: "pi pi-home",
-    template: itemRenderer,
+    template: (item) => <ItemRenderer item={item} />,
   },
   {
     label: "Dashboard",
     icon: "pi pi-star",
-    template: itemRenderer,
+    template: (item) => <ItemRenderer item={item} />,
   },
   {
     label: "About",
     icon: "pi pi-envelope",
-    template: itemRenderer,
+    template: (item) => <ItemRenderer item={item} />,
+  },
+  {
+    label: "Coin",
+    icon: "pi pi-coin",
+    template: (item) => <ItemRenderer item={item} />,
   },
 ];

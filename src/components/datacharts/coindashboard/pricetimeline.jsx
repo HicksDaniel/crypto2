@@ -1,103 +1,63 @@
-
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { Chart } from "primereact/chart";
 import { useCoinStore } from "../../../stores/useCoinStore";
-import { enUS } from 'date-fns/locale';
-import 'chartjs-adapter-date-fns';
 
+
+import {
+    DEFAULT_CHART_DATA,
+    prepareDataset,
+    createChartData,
+    createChartOptions
+} from "./common/generateChartDataset";
 
 export default function PriceTimeline() {
 
-    const [chartData, setChartData] = useState({});
-    const [chartOptions, setChartOptions] = useState({});
-
-
-    const { singleCoinData, searchCoin, timeLine, loading, error, fetchSingleCoinData } = useCoinStore();
-
-
-
-    useEffect(() => {
-        if (!singleCoinData?.prices?.length) return;
-
-
-        const documentStyle = getComputedStyle(document.documentElement);
-        const timeStamps = singleCoinData?.prices?.map(item => new Date(item[0]));
-        const prices = singleCoinData?.prices?.map(item => item[1]);
-
-        let stepTimer = 'day';
-        if (timeLine === '1') stepTimer = 'hour';
-        else if (timeLine === '7') stepTimer = 'day';
-        else if (timeLine === '30') stepTimer = 'week';
-        else if (timeLine === '365' || timeLine === 'max') stepTimer = 'month';
-
-
-        const data = {
-            labels: timeStamps,
-            datasets: [
-                {
-                    label: `${searchCoin} Price (USD)`,
-                    data: prices,
-                    fill: true,
-                    tension: 0.4,
-                    borderColor: documentStyle.getPropertyValue("--green-500"),
-                },
-
-            ],
-        };
-        const options = {
-            maintainAspectRatio: false,
-            aspectRatio: .5,
-            responsive: true,
-            plugins: {
-                legend: {
-
-                },
-            },
-            scales: {
-                x: {
-                    type: 'time',
-                    time: {
-                        unit: stepTimer,
-                        tooltipFormat: 'PPpp'
-                    },
-                    adapters: {
-                        date: {
-                            locale: enUS,
-                        },
-                    },
-                    title: {
-                        display: true,
-                        text: 'Time'
-                    }
-                },
-                y: {
-                    title: {
-                        display: true,
-                        text: 'Price (USD)'
-                    }
-                }
-            },
-        };
-
-        setChartData(data);
-        setChartOptions(options);
-    }, [singleCoinData, searchCoin]);
+    const singleCoinData = useCoinStore(state => state.singleCoinData);
+    const searchCoin = useCoinStore(state => state.searchCoin);
+    const timeLine = useCoinStore(state => state.timeLine);
+    const loading = useCoinStore(state => state.loading);
+    const error = useCoinStore(state => state.error);
+    const selectedDataKey = useCoinStore(state => state.selectedDataKey);
+    const updateDataKey = useCoinStore(state => state.updateDataKey);
+    const fetchSingleCoinData = useCoinStore(state => state.fetchSingleCoinData);
 
     useEffect(() => {
-        fetchSingleCoinData();
-    }, [searchCoin, timeLine]);
+        const Initialize = () => {
+            fetchSingleCoinData();
+        }
+        Initialize();
 
+    }, [selectedDataKey, timeLine, fetchSingleCoinData]);
+
+    const chartDataMemo = useMemo(() => {
+        if (!singleCoinData?.[selectedDataKey]?.length) return DEFAULT_CHART_DATA;
+        const dataset = prepareDataset(singleCoinData[selectedDataKey]);
+        return createChartData(searchCoin, selectedDataKey, dataset);
+    }, [singleCoinData, searchCoin, selectedDataKey]);
+
+    const chartOptionsMemo = useMemo(() => {
+        return createChartOptions(timeLine, selectedDataKey);
+    }, [timeLine, selectedDataKey]);
+
+
+    if (error) {
+        return <div className="error-message">Error: {error}</div>;
+    }
+
+    if (loading) {
+        return <div className="loading-message">Loading...</div>;
+    }
     return (
-        <>
-            <button onClick={() => console.log(singleCoinData, searchCoin)}>click here</button>
-            <Chart
-                style={{ display: "flex", justifySelf: "center", width: "95%", height: "50%" }}
-                className=""
-                type="line"
-                data={chartData}
-                options={chartOptions}
-            />
-        </>
+
+
+        <Chart
+            className="flex justify-content-center, w-12"
+            key={`${selectedDataKey}`}
+            type="line"
+            data={chartDataMemo}
+            options={chartOptionsMemo}
+
+        />
 
     );
 }

@@ -1,63 +1,84 @@
 import { useState, useEffect, useMemo } from "react";
 import { Chart } from "primereact/chart";
 import { useCoinStore } from "../../../stores/useCoinStore";
-
+import { Skeleton } from "primereact/skeleton";
 
 import {
-    DEFAULT_CHART_DATA,
-    prepareDataset,
-    createChartData,
-    createChartOptions
+  DEFAULT_CHART_DATA,
+  prepareDataset,
+  createChartData,
+  createChartOptions,
 } from "./common/generateChartDataset";
 
 export default function PriceTimeline() {
+  const singleCoinData = useCoinStore((state) => state.singleCoinData);
+  const searchCoin = useCoinStore((state) => state.searchCoin);
+  const timeLine = useCoinStore((state) => state.timeLine);
+  const loading = useCoinStore((state) => state.loading);
+  const error = useCoinStore((state) => state.error);
+  const selectedDataKey = useCoinStore((state) => state.selectedDataKey);
+  const fetchSingleCoinData = useCoinStore(
+    (state) => state.fetchSingleCoinData
+  );
 
-    const singleCoinData = useCoinStore(state => state.singleCoinData);
-    const searchCoin = useCoinStore(state => state.searchCoin);
-    const timeLine = useCoinStore(state => state.timeLine);
-    const loading = useCoinStore(state => state.loading);
-    const error = useCoinStore(state => state.error);
-    const selectedDataKey = useCoinStore(state => state.selectedDataKey);
-    const updateDataKey = useCoinStore(state => state.updateDataKey);
-    const fetchSingleCoinData = useCoinStore(state => state.fetchSingleCoinData);
+  const [showSkeleton, setShowSkeleton] = useState(false);
 
-    useEffect(() => {
-        const Initialize = () => {
-            fetchSingleCoinData();
-        }
-        Initialize();
+  useEffect(() => {
+    let timeout;
 
-    }, [selectedDataKey, timeLine, fetchSingleCoinData]);
-
-    const chartDataMemo = useMemo(() => {
-        if (!singleCoinData?.[selectedDataKey]?.length) return DEFAULT_CHART_DATA;
-        const dataset = prepareDataset(singleCoinData[selectedDataKey]);
-        return createChartData(searchCoin, selectedDataKey, dataset);
-    }, [singleCoinData, searchCoin, selectedDataKey]);
-
-    const chartOptionsMemo = useMemo(() => {
-        return createChartOptions(timeLine, selectedDataKey);
-    }, [timeLine, selectedDataKey]);
-
-
-    if (error) {
-        return <div className="error-message">Error: {error}</div>;
+    if (loading || showSkeleton) {
+      setShowSkeleton(true);
+      timeout = setTimeout(() => {
+        setShowSkeleton(false);
+      }, 400);
     }
 
-    if (loading) {
-        return <div className="loading-message">Loading...</div>;
-    }
+    return () => clearTimeout(timeout);
+  }, [loading]);
+
+  useEffect(() => {
+    fetchSingleCoinData();
+  }, [selectedDataKey, timeLine]);
+
+  const chartDataMemo = useMemo(() => {
+    if (!singleCoinData?.[selectedDataKey]?.length) return DEFAULT_CHART_DATA;
+    const dataset = prepareDataset(singleCoinData[selectedDataKey]);
+    return createChartData(searchCoin, selectedDataKey, dataset);
+  }, [singleCoinData, searchCoin, selectedDataKey]);
+
+  const chartOptionsMemo = useMemo(() => {
+    return createChartOptions(timeLine, selectedDataKey);
+  }, [timeLine, selectedDataKey]);
+
+  if (error) {
+    return <div className="error-message">Error: {error}</div>;
+  }
+
+  if (loading || showSkeleton) {
     return (
+      <div className="flex flex-column align-items-center justify-content-center h-full p-0 w-12">
+        <div className="flex align-items-center w-3 h-2rem">
+          <Skeleton height="70%" />
+        </div>
 
+        <div className="flex h-30rem gap-2 w-12">
+          <Skeleton height="100%" width="15%" />
+          <Skeleton height="100%" width="85%" />
+        </div>
 
-        <Chart
-            className="flex justify-content-center, w-12"
-            key={`${selectedDataKey}`}
-            type="line"
-            data={chartDataMemo}
-            options={chartOptionsMemo}
-
-        />
-
+        <div className="flex h-3rem m-2 mb-5 w-12">
+          <Skeleton height="100%" width="100%" />
+        </div>
+      </div>
     );
+  }
+  return (
+    <Chart
+      className=" w-12"
+      key={`${selectedDataKey}`}
+      type="line"
+      data={chartDataMemo}
+      options={chartOptionsMemo}
+    />
+  );
 }

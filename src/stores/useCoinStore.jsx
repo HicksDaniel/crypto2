@@ -1,23 +1,20 @@
 import React from "react";
 import { create } from "zustand";
-import { structuredCoinData } from "./structureData";
 
-import { mapCoinData } from "../assets/common/utils";
-import { mapHistoricalData } from "../assets/common/utils";
-import { format } from "date-fns";
 import {
   DEFAULT_COIN,
   DEFAULT_CHART_LIST,
   DEFAULT_DATA_STATE,
   MOCK_USER_COINS,
+  mapCoinData,
+  mapHistoricalData,
   BASE_URL,
   FETCH_HEADER,
   fetchTrendingCoinData,
   fetchHistoryCoinData,
   fetchCoinData,
+  structuredCoinData,
 } from "../assets/common/utils";
-
-
 
 export const useCoinStore = create((set, get) => ({
   data: DEFAULT_DATA_STATE,
@@ -38,10 +35,10 @@ export const useCoinStore = create((set, get) => ({
   selectedDataKey: "price",
 
   updateTimeLine: (value) => {
-    set({ timeLine: value })
+    set({ timeLine: value });
   },
   updateDataKey: (value = "price") => {
-    set({ selectedDataKey: value })
+    set({ selectedDataKey: value });
   },
 
   updateVisibleCharts: (value) => {
@@ -59,7 +56,7 @@ export const useCoinStore = create((set, get) => ({
       const response = await fetch(`${BASE_URL}/coins/list`, {
         method: "GET",
         headers: FETCH_HEADER,
-      },);
+      });
       const data = await response.json();
       set({ coinList: data });
     } catch (error) {
@@ -103,22 +100,23 @@ export const useCoinStore = create((set, get) => ({
     }
   },
   fetchSingleCoinData: async () => {
-    const { searchCoin, timeLine } = get()
+    const { searchCoin, timeLine } = get();
     set({ loading: true });
     try {
-      const response = await fetch(`${BASE_URL}/coins/${searchCoin}/market_chart?vs_currency=usd&days=${timeLine}`,
+      const response = await fetch(
+        `${BASE_URL}/coins/${searchCoin}/market_chart?vs_currency=usd&days=${timeLine}`,
         {
           method: "GET",
           headers: FETCH_HEADER,
-        },
+        }
       );
-      const data = await response.json()
-      set({ singleCoinData: data, loading: false })
+      const data = await response.json();
+      set({ singleCoinData: data, loading: false });
 
       return data;
     } catch (error) {
       set({ loading: false, error: "Failed to fetch data" });
-      console.error("Error fetching 24h data:", error)
+      console.error("Error fetching 24h data:", error);
     }
   },
 
@@ -139,7 +137,7 @@ export const useCoinStore = create((set, get) => ({
   },
 
   fetchData: async (coin) => {
-    if (!coin || typeof coin !== 'string' || !coin.trim()) {
+    if (!coin || typeof coin !== "string" || !coin.trim()) {
       console.warn("Invalid coin parameter:", coin);
       set({ error: "Invalid coin parameter", loading: false });
       return;
@@ -152,10 +150,9 @@ export const useCoinStore = create((set, get) => ({
       if (!coinData) {
         throw new Error("No data returned from fetchCoinData");
       }
-
+      console.log("coinData", coinData);
       const formattedData = await structuredCoinData(coinData);
       set({ data: formattedData, loading: false });
-
     } catch (error) {
       set({ error: error.message, loading: false });
     }

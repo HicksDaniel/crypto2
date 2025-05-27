@@ -1,9 +1,7 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { Sidebar } from "primereact/sidebar";
 import { Button } from "primereact/button";
-import { useCoinStore } from "../../stores/useCoinStore";
 import ChartSelector from "../cards/selectchartbuttons/chartSelector";
-import { Chart } from "chart.js";
 
 export default function MenuSideBar({ width }) {
   const [visibleLeft, setVisibleLeft] = useState(false);

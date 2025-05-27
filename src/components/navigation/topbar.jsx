@@ -1,9 +1,9 @@
-import React, { useState, useContext, useEffect } from "react";
+import React, { useState, useContext } from "react";
 
 import { Menubar } from "primereact/menubar";
 import { PrimeReactContext } from "primereact/api";
 
-import { menuBarStyling } from "./common/topbar/menubarstyling";
+import { menuBarStyling } from "../../assets/common/passthroughStyles";
 import { topbarMenuItems } from "./common/topbar/topbarMenuItems";
 import { StartItem } from "./common/topbar/startitem";
 import { EndItem } from "./common/topbar/endItem";
@@ -11,9 +11,6 @@ import { EndItem } from "./common/topbar/endItem";
 export default function MenuTopBar({ height }) {
   const [isDarkMode, setIsDarkMode] = useState(false);
   const { changeTheme } = useContext(PrimeReactContext);
-
-
-
 
   const handleClick = () => {
     setIsDarkMode((prevMode) => {

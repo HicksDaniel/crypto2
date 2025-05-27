@@ -15,18 +15,20 @@ export default function CoinInfo() {
   }, []);
 
   return (
-    <div className="flex w-12 h-full overflow-hidden">
-      <div className={`p-2 w-4 slide-in ${showHighlights ? "active" : ""}`}>
+    <div className="flex w-12 h-full justify-content-between overflow-hidden">
+      <div className={` w-4 slide-in ${showHighlights ? "active" : ""}`}>
         <SingleCoinHighLights />
       </div>
-      <div className="flex flex-column align-items-center p-2 w-8 h-full">
+      <div className="flex h-full flex-column align-items-center w-8 ">
         <div
-          className={` w-12 slide-in-down ${showHighlights ? "active" : ""}`}
+          className={` w-12 h-full slide-in-down ${
+            showHighlights ? "active" : ""
+          }`}
         >
           <ButtonGroupsNav />
         </div>
         <div
-          className={`flex w-12 h-full slide-in-left ${
+          className={`flex  w-12 h-full slide-in-left ${
             showHighlights ? "active" : ""
           }`}
         >
@@ -34,7 +36,7 @@ export default function CoinInfo() {
         </div>
 
         <div
-          className={`flex justify-content-center w-12 h-20rem slide-in-up ${
+          className={`flex justify-content-end align-items-end w-12 h-20rem slide-in-up ${
             showHighlights ? "active" : ""
           }`}
         >

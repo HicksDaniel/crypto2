@@ -22,19 +22,24 @@ export function ChangeOverTime() {
   }, [fetchData, searchCoin]);
 
   return (
-    <div className="flex justify-content-around flex-row w-11">
+    <div className="flex border-1  justify-content-around align-items-end overflow-hidden border-round-3xl h-8rem w-11">
       {currentData?.map((item, index) => (
         <div
           key={index}
-          className="flex border-1 justify-content-center flex-column w-2 text-center p-2 h-8rem"
+          className="flex border-right-1 justify-content-center flex-column w-2 text-center h-full"
         >
           <div
             onClick={() => handleClick(item.value)}
-            className="flex cursor-pointer justify-content-center align-items-center h-4rem font-bold"
+            style={{
+              backgroundColor: "var(--primary-color",
+              color: "var(--primary-color-text)",
+              borderColor: "black",
+            }}
+            className="flex   w-12 p-0 m-0 cursor-pointer justify-content-center align-items-center h-4rem font-bold"
           >
             {item.label}
           </div>
-          <div className="flex justify-content-center align-items-center h-4rem font-bold">
+          <div className="flex   justify-content-center align-items-center h-4rem font-bold">
             {item.changeValue != null
               ? item.label === "Current"
                 ? `$${item.changeValue}`

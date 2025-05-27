@@ -15,7 +15,6 @@ export default function MenuSideBar({ width }) {
     };
     return updatedStyles;
   };
-
   let timeoutId;
 
   function handleSideDrawers(value, string) {
@@ -56,7 +55,7 @@ export default function MenuSideBar({ width }) {
         </Sidebar>
       </div>
 
-      <div className="flex absolute right-0 h-full w-5rem">
+      {/* <div className="flex absolute right-0 h-full w-5rem">
         <Button
           style={{ ...buttonFormat("right", "end") }}
           icon="pi pi-arrow-left"
@@ -77,7 +76,7 @@ export default function MenuSideBar({ width }) {
             aliquip ex ea commodo consequat.
           </p>
         </Sidebar>
-      </div>
+      </div> */}
     </>
   );
 }

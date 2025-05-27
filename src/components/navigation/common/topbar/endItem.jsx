@@ -1,43 +1,49 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { InputText } from "primereact/inputtext";
 import { Avatar } from "primereact/avatar";
+import { ListBox } from "primereact/listbox";
 import { useCoinStore } from "../../../../stores/useCoinStore";
 
 export function EndItem() {
-  const { searchCoin, fetchCoinList, coinList, updateSearchCoin, loading, error } = useCoinStore();
-  const [searchValue, setSearchValue] = useState("")
-  const [filteredCoins, setFilteredCoins] = useState([]);
+  const { fetchCoinList, coinList, updateSearchCoin } = useCoinStore();
+  const [searchValue, setSearchValue] = useState("");
+  const [selectedCoin, setSelectedCoin] = useState(null);
 
   useEffect(() => {
     fetchCoinList();
-  }, []);
+  }, [fetchCoinList]);
 
-  useEffect(() => {
-    if (searchValue.trim() === "") {
-      setFilteredCoins([]);
-      return;
-    }
+  const normalizedSearch = searchValue.toLowerCase().normalize();
 
-    const results = coinList
+  const filteredCoins = useMemo(() => {
+    if (!normalizedSearch.trim()) return [];
+
+    return coinList
       .filter(
         (coin) =>
-          coin.name.toLowerCase().includes(searchValue.toLowerCase()) ||
-          coin.symbol.toLowerCase().includes(searchValue.toLowerCase())
+          coin.name.toLowerCase().normalize().includes(normalizedSearch) ||
+          coin.symbol.toLowerCase().normalize().includes(normalizedSearch)
       )
       .sort((a, b) => a.name.length - b.name.length)
-      .slice(0, 5);
+      .slice(0, 5)
+      .map((coin) => ({
+        label: `${coin.name} (${coin.symbol})`,
+        value: coin,
+      }));
+  }, [normalizedSearch, coinList]);
 
-    setFilteredCoins(results);
-  }, [searchValue, coinList]);
+  const handleSelectCoin = (e) => {
+    const coin = e.value;
+    if (coin) {
+      updateSearchCoin(coin.id);
+      setSelectedCoin(coin);
+      setSearchValue(coin.name); // optionally show the selected name
+    }
 
-  const handleChange = (value) => {
-    setSearchValue(value);
+    // Clear filteredCoins by clearing searchValue (this hides the ListBox)
+    setTimeout(() => setSearchValue(""), 100); // delay to prevent ListBox flicker
   };
-  const handleSelectCoin = (coin) => {
-    updateSearchCoin(coin.id);
-    setSearchValue(coin.name);
-    setFilteredCoins([]);
-  };
+
   return (
     <div className="flex flex-column gap-2" style={{ position: "relative" }}>
       <div
@@ -46,50 +52,34 @@ export function EndItem() {
       >
         <InputText
           placeholder="Search"
+          keyfilter="alphanum"
           value={searchValue}
-          onChange={(e) => handleChange(e.target.value)}
+          onChange={(e) => setSearchValue(e.target.value)}
           type="text"
-          className="w-12"
+          className="w-10"
         />
         <Avatar
-          className="min-w-0"
+          className="min-w-0 mr-1"
           image="https://primefaces.org/cdn/primereact/images/avatar/amyelsner.png"
           shape="circle"
         />
       </div>
 
       {filteredCoins.length > 0 && (
-        <ul
-          className="search-dropdown"
+        <ListBox
+          className="w-10"
+          value={selectedCoin}
+          options={filteredCoins}
+          onChange={handleSelectCoin}
           style={{
+            zIndex: "1",
             position: "absolute",
-            top: "100%",
-            left: 0,
-            zIndex: 10,
-            background: "#fff",
-            width: "100%",
-            maxHeight: "200px",
-            overflowY: "auto",
-            border: "1px solid #ccc",
-            listStyle: "none",
-            padding: 0,
-            margin: 0,
+            transform: "translateY(55px)",
           }}
-        >
-          {filteredCoins.map((coin) => (
-            <li
-              key={coin.id}
-              onClick={() => handleSelectCoin(coin)}
-              style={{
-                padding: "0.5rem",
-                cursor: "pointer",
-                borderBottom: "1px solid #eee",
-              }}
-            >
-              {coin.name} ({coin.symbol})
-            </li>
-          ))}
-        </ul>
+          optionLabel="label"
+          filter={false}
+          listStyle={{ maxHeight: "200px" }}
+        />
       )}
     </div>
   );

@@ -9,19 +9,25 @@ import {
 import { commonButtonStyles } from "../../../assets/common/passthroughStyles";
 
 export function ButtonGroupsNav() {
-  const timeLine = useCoinStore((state) => state.timeLine);
-  const updateTimeLine = useCoinStore((state) => state.updateTimeLine);
-  const selectedDataKey = useCoinStore((state) => state.selectedDataKey);
-  const updateDataKey = useCoinStore((state) => state.updateDataKey);
+  const {
+    timeline,
+    updateTimeLine,
+    selectedDataKey,
+    updateDataKey,
+    loading,
+    fetchSingleCoinData,
+  } = useCoinStore();
 
   const handleTimeChange = (value) => {
-    if (value === timeLine) return;
+    if (value === timeline) return;
+    fetchSingleCoinData();
     updateTimeLine(value);
   };
 
   const handleDataViewChange = (value) => {
     if (value === selectedDataKey) return;
     updateDataKey(value);
+    fetchSingleCoinData();
   };
   return (
     <div className="flex w-12 justify-content-center gap-1">
@@ -69,8 +75,8 @@ export function ButtonGroupsNav() {
             style={{
               width: btn.width,
               ...commonButtonStyles,
-              backgroundColor: timeLine === btn.value ? "#007ad9" : undefined,
-              color: timeLine === btn.value ? "white" : undefined,
+              backgroundColor: timeline === btn.value ? "#007ad9" : undefined,
+              color: timeline === btn.value ? "white" : undefined,
             }}
             label={btn.label}
           />

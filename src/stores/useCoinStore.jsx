@@ -19,7 +19,7 @@ import {
 export const useCoinStore = create((set, get) => ({
   data: DEFAULT_DATA_STATE,
   searchCoin: DEFAULT_COIN,
-  singleCoinData: null,
+  singleCoinData: [],
   rawTrendingData: [],
   formattedTrendingData: [],
   rawHistoricalData: [],
@@ -31,11 +31,11 @@ export const useCoinStore = create((set, get) => ({
   chartList: [],
   visibleCharts: [],
   coinList: [],
-  timeLine: "1",
+  timeline: "1",
   selectedDataKey: "price",
 
   updateTimeLine: (value) => {
-    set({ timeLine: value });
+    set({ timeline: value });
   },
   updateDataKey: (value = "price") => {
     set({ selectedDataKey: value });
@@ -48,7 +48,7 @@ export const useCoinStore = create((set, get) => ({
     set({ chartList: value });
   },
   updateSearchCoin: (value) => {
-    set({ searchCoin: value });
+    set({ searchCoin: String(value.toLowerCase()) });
   },
 
   fetchCoinList: async () => {
@@ -100,20 +100,20 @@ export const useCoinStore = create((set, get) => ({
     }
   },
   fetchSingleCoinData: async () => {
-    const { searchCoin, timeLine } = get();
+    const { searchCoin, timeline } = get();
+
     set({ loading: true });
     try {
       const response = await fetch(
-        `${BASE_URL}/coins/${searchCoin}/market_chart?vs_currency=usd&days=${timeLine}`,
+        `${BASE_URL}/coins/${searchCoin}/market_chart?vs_currency=usd&days=${timeline}`,
         {
           method: "GET",
           headers: FETCH_HEADER,
         }
       );
       const data = await response.json();
-      set({ singleCoinData: data, loading: false });
 
-      return data;
+      set({ singleCoinData: data, loading: false });
     } catch (error) {
       set({ loading: false, error: "Failed to fetch data" });
       console.error("Error fetching 24h data:", error);

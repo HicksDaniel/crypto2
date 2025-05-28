@@ -12,8 +12,8 @@ export const DEFAULT_CHART_DATA = {
   datasets: [],
 };
 
-export const getStepTimer = (timeLine) => {
-  switch (timeLine) {
+export const getStepTimer = (timeline) => {
+  switch (timeline) {
     case "1":
       return "hour";
     case "7":
@@ -49,7 +49,7 @@ export const createChartData = (searchCoin, selectedDataKey, dataset) => {
   };
 };
 
-export const createChartOptions = (timeLine = "1", selectedDataKey = "") => ({
+export const createChartOptions = (timeline = "1", selectedDataKey = "") => ({
   elements: {
     point: {
       radius: 0,
@@ -74,7 +74,7 @@ export const createChartOptions = (timeLine = "1", selectedDataKey = "") => ({
     x: {
       type: "time",
       time: {
-        unit: getStepTimer(timeLine),
+        unit: getStepTimer(timeline),
         tooltipFormat: "PPpp",
       },
       adapters: {

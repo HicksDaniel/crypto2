@@ -9,7 +9,8 @@ export default function MenuSideBar({ width }) {
 
   const buttonFormat = (direction, position) => {
     const updatedStyles = {
-      background: `linear-gradient(to ${direction}, transparent 31%, var(--primary-color) 85%)`,
+      backgroundColor: "none",
+      background: `linear-gradient(to ${direction}, transparent 31%, #1b242d 95%)`,
       width: "100%",
       justifyContent: `flex-${position}`,
     };

@@ -3,13 +3,13 @@ import { useCoinStore } from "../../../stores/useCoinStore";
 import { calculatePercentageChange } from "../../../assets/common/utils";
 
 export function ChangeOverTime() {
-  const { data, fetchData, searchCoin, timeLine, updateTimeLine } =
+  const { data, fetchData, searchCoin, timeline, updateTimeLine } =
     useCoinStore();
 
   const currentData = calculatePercentageChange(data?.marketData?.pricing);
 
   const handleClick = (value) => {
-    if (value === timeLine) return;
+    if (value === timeline) return;
     updateTimeLine(value);
   };
 
@@ -31,7 +31,7 @@ export function ChangeOverTime() {
           <div
             onClick={() => handleClick(item.value)}
             style={{
-              backgroundColor: "var(--primary-color",
+              backgroundColor: "var(--primary-color)",
               color: "var(--primary-color-text)",
               borderColor: "black",
             }}

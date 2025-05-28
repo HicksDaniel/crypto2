@@ -1,48 +1,46 @@
 import React, { useState, useEffect } from "react";
-import { eachDayOfInterval, parseISO, format } from "date-fns";
-
+import { eachDayOfInterval } from "date-fns";
 import { DataTable } from "primereact/datatable";
 import { Column } from "primereact/column";
 import { Calendar } from "primereact/calendar";
 import { useCoinStore } from "../../../stores/useCoinStore.jsx";
 import { dataTableStyles } from "../../../assets/common/passthroughStyles.jsx";
-
-
+import { useNavigate } from "react-router";
 
 const startDate = new Date();
 startDate.setDate(startDate.getDate() - 1);
 
 const endDate = new Date();
 
-export default function HistoricalDataTable({ hideTable }) {
-  const [inputDates, setInputDates] = useState([startDate, endDate])
-
-  const { fetchHistoryData, formattedHistoricalData, searchCoin, fetchData, loading } =
-    useCoinStore();
-
-  const handleCoinLookup = (coinName) => {
-    fetchData(coinName)
-
-  };
-
+export default function HistoricalDataTable() {
+  const [inputDates, setInputDates] = useState([startDate, endDate]);
+  const navigate = useNavigate();
+  const {
+    fetchHistoryData,
+    formattedHistoricalData,
+    searchCoin,
+    fetchData,
+    loading,
+  } = useCoinStore();
 
   const CompanyData = (rowData) => {
-
     return (
-      <div onClick={() => handleCoinLookup(rowData.name)} className="flex cursor-pointer justify-content-center w-12">
+      <div
+        onClick={() => handleReroute("/Coin")}
+        className="flex cursor-pointer justify-content-center w-12"
+      >
         {rowData.name}
       </div>
     );
   };
+  const handleReroute = (value) => {
+    navigate(value);
+  };
 
   const handleChange = (dateValues) => {
     if (dateValues && dateValues.length === 2) {
-      setInputDates(dateValues)
+      setInputDates(dateValues);
     }
-  }
-
-  const handleSubmit = () => {
-    setCalendarDates(inputDates);
   };
 
   const localCurrency = "usd";
@@ -70,7 +68,6 @@ export default function HistoricalDataTable({ hideTable }) {
           className="w-12"
           value={inputDates}
           onChange={(e) => handleChange(e.value)}
-          onBlur={handleSubmit}
           selectionMode="range"
           readOnlyInput
           hideOnRangeSelection

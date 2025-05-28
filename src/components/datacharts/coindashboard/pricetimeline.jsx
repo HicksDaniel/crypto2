@@ -13,32 +13,10 @@ import {
 export default function PriceTimeline() {
   const singleCoinData = useCoinStore((state) => state.singleCoinData);
   const searchCoin = useCoinStore((state) => state.searchCoin);
-  const timeLine = useCoinStore((state) => state.timeLine);
+  const timeline = useCoinStore((state) => state.timeline);
   const loading = useCoinStore((state) => state.loading);
   const error = useCoinStore((state) => state.error);
   const selectedDataKey = useCoinStore((state) => state.selectedDataKey);
-  const fetchSingleCoinData = useCoinStore(
-    (state) => state.fetchSingleCoinData
-  );
-
-  const [showSkeleton, setShowSkeleton] = useState(false);
-
-  useEffect(() => {
-    let timeout;
-
-    if (loading || showSkeleton) {
-      setShowSkeleton(true);
-      timeout = setTimeout(() => {
-        setShowSkeleton(false);
-      }, 400);
-    }
-
-    return () => clearTimeout(timeout);
-  }, [loading]);
-
-  useEffect(() => {
-    fetchSingleCoinData();
-  }, [selectedDataKey, timeLine]);
 
   const chartDataMemo = useMemo(() => {
     if (!singleCoinData?.[selectedDataKey]?.length) return DEFAULT_CHART_DATA;
@@ -47,14 +25,14 @@ export default function PriceTimeline() {
   }, [singleCoinData, searchCoin, selectedDataKey]);
 
   const chartOptionsMemo = useMemo(() => {
-    return createChartOptions(timeLine, selectedDataKey);
-  }, [timeLine, selectedDataKey]);
+    return createChartOptions(timeline, selectedDataKey);
+  }, [timeline, selectedDataKey]);
 
   if (error) {
     return <div className="error-message">Error: {error}</div>;
   }
 
-  if (loading || showSkeleton) {
+  if (loading) {
     return (
       <div className="flex flex-column align-items-center justify-content-center h-full p-0 w-12">
         <div className="flex align-items-center w-3 h-2rem">

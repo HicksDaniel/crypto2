@@ -35,8 +35,8 @@ export default function MenuTopBar({ height }) {
       className="flex w-9"
       style={{
         height: `${height}`,
+
         position: "absolute",
-        boxShadow: "0px 10px 50px 0px rgba(120,120,120,.5)",
       }}
     >
       <Menubar

@@ -22,10 +22,7 @@ function Layout() {
     <>
       <MenuSideBar width={SIDE_BAR_WIDTH} />
       <MenuTopBar height={TOP_BAR_HEIGHT} />
-      <div
-        className="w-9"
-        style={{ backgroundColor: "rgba(125, 125, 125, .2)" }}
-      >
+      <div className="w-9" style={{ backgroundColor: "var(--surface-50" }}>
         <div style={contentStyles}>
           <Outlet />
         </div>

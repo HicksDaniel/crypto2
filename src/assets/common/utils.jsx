@@ -1,6 +1,7 @@
 import DoughnutChart from "../../components/datacharts/doughnutchart";
 import StyledLineChart from "../../components/datacharts/styledlinechart";
 import CompoundLineChart from "../../components/datacharts/compoundlinechart";
+import { format } from "date-fns";
 
 export const structuredCoinData = async (coinData) => {
   return new Promise((resolve) => {
@@ -51,7 +52,6 @@ export const structuredCoinData = async (coinData) => {
 };
 
 export function mapCoinData(coin) {
-  console.log("test", coin);
   return {
     name: coin?.name || null,
     image: coin?.small || null,
@@ -280,7 +280,6 @@ export const fetchHistoryCoinData = async (coinId, date) => {
     console.error("Error fetching historical coin data:", error);
     throw error;
   }
-  ``;
 };
 
 export const fetchCoinData = async (coinName) => {

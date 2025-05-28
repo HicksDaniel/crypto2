@@ -37,6 +37,7 @@ export const menuBarStyling = {
     style: {
       borderRadius: "0",
       border: "none",
+      background: "var(--primary-800)",
       display: "flex",
       width: "100%",
       minWidth: "500px",
@@ -53,13 +54,23 @@ export const menuBarStyling = {
     },
   },
   menuitem: {
-    style: { display: "flex", padding: "10px" },
+    style: {
+      display: "flex",
+      padding: "10px",
+    },
   },
   start: {
-    style: { width: "20%", minWidth: "200px" },
+    style: {
+      width: "20%",
+      minWidth: "200px",
+    },
   },
   end: {
-    style: { width: "20%", minWidth: "200px", marginLeft: "0" },
+    style: {
+      width: "20%",
+      minWidth: "200px",
+      marginLeft: "0",
+    },
   },
   content: { style: {} },
 };

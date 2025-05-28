@@ -24,14 +24,6 @@ export const imageBodyTemplate = (rowData) => {
   );
 };
 
-export const displayNameTemplate = (rowData) => {
-  return (
-    <div className=" justify-content-center align-items-center">
-      {rowData.name}
-    </div>
-  );
-};
-
 export const marketCapTemplate = (rowData) => {
   return (
     <div className="flex  justify-content-center align-items-center">

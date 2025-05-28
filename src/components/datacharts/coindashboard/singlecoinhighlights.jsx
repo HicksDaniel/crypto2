@@ -4,7 +4,7 @@ import { ProgressBar } from "primereact/progressbar";
 import { Skeleton } from "primereact/skeleton";
 
 export function SingleCoinHighLights() {
-  const { data, fetchData, searchCoin, timeLine, updateTimeLine, loading } =
+  const { data, fetchData, searchCoin, timeline, updateTimeLine, loading } =
     useCoinStore();
 
   const name = data?.name;

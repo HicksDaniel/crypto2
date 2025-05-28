@@ -6,14 +6,37 @@ import { useCoinStore } from "../../../stores/useCoinStore.jsx";
 import { dataTableStyles } from "../../../assets/common/passthroughStyles.jsx";
 import {
   imageBodyTemplate,
-  displayNameTemplate,
   marketCapTemplate,
   currentPriceDataTemplate,
   priceChangeDataTemplate,
 } from "./tableBodyStyles.jsx";
+import { useNavigate } from "react-router";
 
 export default function TrendingDataTable() {
-  const { fetchTrendingData, formattedTrendingData, loading } = useCoinStore();
+  const navigate = useNavigate();
+  const {
+    fetchSingleCoinData,
+    updateSearchCoin,
+    fetchTrendingData,
+    formattedTrendingData,
+    loading,
+  } = useCoinStore();
+
+  const displayNameTemplate = (rowData) => {
+    const handleClick = (value) => {
+      updateSearchCoin(value);
+      fetchSingleCoinData();
+      navigate("/Coin");
+    };
+    return (
+      <div
+        onClick={() => handleClick(rowData.name)}
+        className=" justify-content-center align-items-center"
+      >
+        {rowData.name}
+      </div>
+    );
+  };
 
   useEffect(() => {
     fetchTrendingData();

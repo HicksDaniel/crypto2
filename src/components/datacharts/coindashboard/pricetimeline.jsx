@@ -2,6 +2,7 @@ import { useState, useEffect, useMemo } from "react";
 import { Chart } from "primereact/chart";
 import { useCoinStore } from "../../../stores/useCoinStore";
 import { Skeleton } from "primereact/skeleton";
+import { hoverLine } from "./common/generateChartDataset";
 
 import {
   DEFAULT_CHART_DATA,
@@ -11,12 +12,19 @@ import {
 } from "./common/generateChartDataset";
 
 export default function PriceTimeline() {
-  const singleCoinData = useCoinStore((state) => state.singleCoinData);
-  const searchCoin = useCoinStore((state) => state.searchCoin);
-  const timeline = useCoinStore((state) => state.timeline);
-  const loading = useCoinStore((state) => state.loading);
-  const error = useCoinStore((state) => state.error);
-  const selectedDataKey = useCoinStore((state) => state.selectedDataKey);
+  const {
+    singleCoinData,
+    searchCoin,
+    timeline,
+    loading,
+    error,
+    fetchSingleCoinData,
+    selectedDataKey,
+  } = useCoinStore();
+
+  useEffect(() => {
+    fetchSingleCoinData();
+  }, []);
 
   const chartDataMemo = useMemo(() => {
     if (!singleCoinData?.[selectedDataKey]?.length) return DEFAULT_CHART_DATA;
@@ -27,6 +35,17 @@ export default function PriceTimeline() {
   const chartOptionsMemo = useMemo(() => {
     return createChartOptions(timeline, selectedDataKey);
   }, [timeline, selectedDataKey]);
+
+  const renderChart = () => (
+    <Chart
+      className="w-12"
+      key={selectedDataKey}
+      type="line"
+      data={chartDataMemo}
+      plugins={[hoverLine]}
+      options={chartOptionsMemo}
+    />
+  );
 
   if (error) {
     return <div className="error-message">Error: {error}</div>;
@@ -50,13 +69,6 @@ export default function PriceTimeline() {
       </div>
     );
   }
-  return (
-    <Chart
-      className=" w-12"
-      key={`${selectedDataKey}`}
-      type="line"
-      data={chartDataMemo}
-      options={chartOptionsMemo}
-    />
-  );
+
+  return <>{renderChart()}</>;
 }

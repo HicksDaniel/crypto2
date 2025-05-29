@@ -3,7 +3,7 @@ import { useNavigate } from "react-router";
 import { useCoinStore } from "../../../../stores/useCoinStore";
 
 function ItemRenderer({ item }) {
-  const { data, singleCoinData } = useCoinStore();
+  const { data, singleCoinData, timeline, selectedDataKey } = useCoinStore();
   const navigate = useNavigate();
 
   const handleRouting = (toRoute) => {
@@ -13,7 +13,13 @@ function ItemRenderer({ item }) {
 
   return (
     <>
-      <button onClick={() => console.log(data)}>Data</button>
+      <button
+        onClick={() =>
+          console.log(data, singleCoinData, timeline, selectedDataKey)
+        }
+      >
+        Data
+      </button>
       <button onClick={() => console.log(singleCoinData)}>sD</button>
       <a
         onClick={() => {

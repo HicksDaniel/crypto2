@@ -32,12 +32,12 @@ export const useCoinStore = create((set, get) => ({
   visibleCharts: [],
   coinList: [],
   timeline: "1",
-  selectedDataKey: "price",
+  selectedDataKey: "prices",
 
   updateTimeLine: (value) => {
     set({ timeline: value });
   },
-  updateDataKey: (value = "price") => {
+  updateDataKey: (value = "prices") => {
     set({ selectedDataKey: value });
   },
 

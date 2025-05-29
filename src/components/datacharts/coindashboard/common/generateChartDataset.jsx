@@ -1,5 +1,6 @@
 import { enUS } from "date-fns/locale";
 import "chartjs-adapter-date-fns";
+import { _toLeftRightCenter } from "chart.js/helpers";
 
 export const labelMap = {
   prices: "Price (USD)",
@@ -49,10 +50,39 @@ export const createChartData = (searchCoin, selectedDataKey, dataset) => {
   };
 };
 
+export const hoverLine = {
+  id: "hoverLine",
+  afterDatasetsDraw(chart) {
+    const {
+      ctx,
+      tooltip,
+      data,
+      chartArea: { top, bottom, left, right },
+    } = chart;
+
+    if (tooltip._active.length > 0) {
+      const xCoor = tooltip._active[0].element.x;
+      const yCoor = tooltip._active[0].element.y;
+
+      ctx.strokeStyle = "black";
+      ctx.lineWidth = 3;
+
+      ctx.beginPath();
+      ctx.moveTo(left, yCoor);
+      ctx.lineTo(xCoor - 5, yCoor);
+      ctx.stroke();
+      ctx.beginPath();
+      ctx.moveTo(xCoor, yCoor + 5);
+      ctx.lineTo(xCoor, bottom);
+      ctx.stroke();
+    }
+  },
+};
+
 export const createChartOptions = (timeline = "1", selectedDataKey = "") => ({
   elements: {
     point: {
-      radius: 0,
+      radius: 1,
     },
   },
   interaction: {

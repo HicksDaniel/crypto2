@@ -12,13 +12,13 @@ import {
 } from "./tableBodyStyles.jsx";
 import { useNavigate } from "react-router";
 
-export default function TrendingDataTable() {
+export default function DefinedDataTable({ trending, info }) {
   const navigate = useNavigate();
   const {
     fetchSingleCoinData,
     updateSearchCoin,
-    fetchTrendingData,
-    formattedTrendingData,
+    fetchDefinedData,
+    formattedDefinedData,
     loading,
   } = useCoinStore();
 
@@ -39,24 +39,24 @@ export default function TrendingDataTable() {
   };
 
   useEffect(() => {
-    fetchTrendingData();
-  }, [fetchTrendingData]);
+    fetchDefinedData("trending");
+  }, []);
 
-  const trendingDataReady = formattedTrendingData && !loading;
+  const definedDataReady = formattedDefinedData && !loading;
 
   return (
     <>
       <div className="flex w-12 bg-primary-600 justify-content-center p-0 m-0 w-9">
-        {trendingDataReady && (
-          <DataTable pt={dataTableStyles} value={formattedTrendingData}>
+        {definedDataReady && (
+          <DataTable pt={dataTableStyles} value={formattedDefinedData}>
             <Column body={displayNameTemplate} header="Company" />
+            <Column body={imageBodyTemplate} header="Symbol" />
             <Column
               sortable
               body={marketCapTemplate}
               field="marketCapRank"
               header="MC Rank"
             />
-            <Column body={imageBodyTemplate} header="Quantity" />
             <Column
               sortable
               body={currentPriceDataTemplate}

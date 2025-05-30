@@ -22,6 +22,8 @@ export const useCoinStore = create((set, get) => ({
   singleCoinData: [],
   rawTrendingData: [],
   formattedTrendingData: [],
+  rawDefinedData: [],
+  formattedDefinedData: [],
   rawHistoricalData: [],
   formattedHistoricalData: [],
   userCoins: MOCK_USER_COINS,
@@ -130,6 +132,36 @@ export const useCoinStore = create((set, get) => ({
         ...mapCoinData(coin.item),
       }));
       set({ rawTrendingData: response, formattedTrendingData, loading: false });
+    } catch (error) {
+      set({ formattedTrendingData: [], loading: false });
+      console.warn("Issue fetching trending coin data", error);
+    }
+  },
+
+  fetchDefinedData: async (value) => {
+    const isTrending = value === "trending" ? "search" : "coins";
+
+    set({ loading: true });
+    try {
+      const res = await fetch(
+        `${BASE_URL}/${isTrending}/${value}?vs_currency=usd`,
+        {
+          method: "GET",
+          headers: FETCH_HEADER,
+        }
+      );
+
+      if (!res.ok)
+        throw new Error(
+          `Failed to fetch trending coins: ${res.status} ${res.statusText}`
+        );
+
+      const data = await res.json();
+
+      const formattedDefinedData = await data.coins.map((coin) => ({
+        ...mapCoinData(coin.item),
+      }));
+      set({ rawTrendingData: data, formattedDefinedData, loading: false });
     } catch (error) {
       set({ formattedTrendingData: [], loading: false });
       console.warn("Issue fetching trending coin data", error);

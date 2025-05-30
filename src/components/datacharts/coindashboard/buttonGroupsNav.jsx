@@ -20,8 +20,8 @@ export function ButtonGroupsNav() {
 
   const handleTimeChange = (value) => {
     if (value === timeline) return;
-    fetchSingleCoinData();
     updateTimeLine(value);
+    fetchSingleCoinData();
   };
 
   const handleDataViewChange = (value) => {

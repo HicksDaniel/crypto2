@@ -4,13 +4,23 @@ import CompoundLineChart from "../../components/datacharts/compoundlinechart";
 import { format } from "date-fns";
 
 export const structuredCoinData = async (coinData) => {
+  console.log(coinData);
   return new Promise((resolve) => {
     const processedData = {
       name: coinData?.name || null,
       image: coinData?.image.small || null,
-      marketRank: coinData?.market_cap_rank || null,
+      marketCapRank: coinData?.market_cap_rank || null,
       symbol: coinData?.symbol || null,
       last_updated: coinData?.last_updated || null,
+
+      marketCap: coinData?.market_data?.market_cap?.usd || null,
+      fullyDilutedValuation:
+        coinData?.market_data?.fully_diluted_valuation?.usd || null,
+
+      circulatingSupply: coinData?.market_data?.circulating_supply || null,
+      totalSupply: coinData?.market_data?.total_supply || null,
+      maxSupply: coinData?.market_data?.max_supply || null,
+
       marketData: {
         allTimeHigh: {
           ath: coinData?.market_data?.ath?.usd || null,

@@ -2,6 +2,10 @@ import React, { useEffect, useState } from "react";
 import { useCoinStore } from "../../../stores/useCoinStore";
 import { ProgressBar } from "primereact/progressbar";
 import { Skeleton } from "primereact/skeleton";
+import { TabView, TabPanel } from "primereact/tabview";
+import { Button } from "primereact/button";
+import { Panel } from "primereact/panel";
+import { Divider } from "primereact/divider";
 
 export function SingleCoinHighLights() {
   const { data, fetchData, searchCoin, timeline, updateTimeLine, loading } =
@@ -12,6 +16,12 @@ export function SingleCoinHighLights() {
   const image = data?.image;
   const marketRank = data?.marketRank;
   const marketData = data?.marketData;
+
+  const marketCap = data?.marketCap;
+  const FDValuation = data?.fullyDilutedValuation;
+  const circulatingSupply = data?.circulatingSupply;
+  const totalSupply = data?.totalSupply;
+  const maxSupply = data?.maxSupply;
 
   const [showSkeleton, setShowSkeleton] = useState(false);
 
@@ -27,6 +37,30 @@ export function SingleCoinHighLights() {
 
     return () => clearTimeout(timeout);
   }, [loading]);
+
+  const formatLargeNumbers = (value) => {
+    if (typeof value !== "number" || isNaN(value)) return "—";
+
+    if (value >= 1_000_000_000) {
+      const billions = value / 1_000_000_000;
+      return `$${billions.toLocaleString("en-US", {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2,
+      })} Billion`;
+    } else if (value >= 1_000_000) {
+      const millions = value / 1_000_000;
+      return `$${millions.toLocaleString("en-US", {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2,
+      })} Million`;
+    } else {
+      return value.toLocaleString("en-US", {
+        style: "currency",
+        currency: "USD",
+        maximumFractionDigits: 2,
+      });
+    }
+  };
 
   const CustomProgressBar = ({ value, min, max }) => {
     const percentage = ((value - min) / (max - min)) * 100;
@@ -111,7 +145,93 @@ export function SingleCoinHighLights() {
           <div>${marketData?.pricing.high_24h}</div>
         </div>
       </div>
-      <h1 onClick={() => console.log(data)}>Hello!</h1>
+      <div>
+        <TabView>
+          <TabPanel header="Header I">
+            <p className="m-0">
+              Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
+              eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut
+              enim ad minim veniam, quis nostrud exercitation ullamco laboris
+              nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in
+              reprehenderit in voluptate velit esse cillum dolore eu fugiat
+              nulla pariatur. Excepteur sint occaecat cupidatat non proident,
+              sunt in culpa qui officia deserunt mollit anim id est laborum.
+            </p>
+          </TabPanel>
+          <TabPanel header="Header II">
+            <p className="m-0">
+              Sed ut perspiciatis unde omnis iste natus error sit voluptatem
+              accusantium doloremque laudantium, totam rem aperiam, eaque ipsa
+              quae ab illo inventore veritatis et quasi architecto beatae vitae
+              dicta sunt explicabo. Nemo enim ipsam voluptatem quia voluptas sit
+              aspernatur aut odit aut fugit, sed quia consequuntur magni dolores
+              eos qui ratione voluptatem sequi nesciunt. Consectetur, adipisci
+              velit, sed quia non numquam eius modi.
+            </p>
+          </TabPanel>
+          <TabPanel header="Header III">
+            <p className="m-0">
+              At vero eos et accusamus et iusto odio dignissimos ducimus qui
+              blanditiis praesentium voluptatum deleniti atque corrupti quos
+              dolores et quas molestias excepturi sint occaecati cupiditate non
+              provident, similique sunt in culpa qui officia deserunt mollitia
+              animi, id est laborum et dolorum fuga. Et harum quidem rerum
+              facilis est et expedita distinctio. Nam libero tempore, cum soluta
+              nobis est eligendi optio cumque nihil impedit quo minus.
+            </p>
+          </TabPanel>
+        </TabView>
+        <Panel header="Market Info" toggleable>
+          <div className="m-0">
+            <div className="flex justify-content-between h-2rem m-0 p-0">
+              <p>Market Cap</p>
+              <p>{formatLargeNumbers(marketCap)}</p>
+            </div>
+            <Divider />
+          </div>
+          <div className="m-0">
+            <div className="flex justify-content-between h-2rem m-0 p-0">
+              <p>Fully Diluted Valuation</p>
+              <p>{formatLargeNumbers(FDValuation)}</p>
+            </div>
+            <Divider />
+          </div>
+          <div className="m-0">
+            <div className="flex justify-content-between h-2rem m-0 p-0">
+              <p>Circulating Supply</p>
+              <p>{formatLargeNumbers(circulatingSupply)}</p>
+            </div>
+            <Divider />
+          </div>
+          <div className="m-0">
+            <div className="flex justify-content-between h-2rem m-0 p-0">
+              <p>Total Supply</p>
+              <p>{totalSupply}</p>
+            </div>
+            <Divider />
+          </div>
+          <div className="m-0">
+            <div className="flex justify-content-between h-2rem m-0 p-0">
+              <p>Max Supply</p>
+              <p>{maxSupply === null ? "Infinite" : maxSupply}</p>
+            </div>
+            <Divider />
+          </div>
+        </Panel>
+      </div>
+      <h1
+        onClick={() =>
+          console.log(
+            marketCap,
+            FDValuation,
+            circulatingSupply,
+            totalSupply,
+            maxSupply
+          )
+        }
+      >
+        Hello!
+      </h1>
     </>
   );
 }

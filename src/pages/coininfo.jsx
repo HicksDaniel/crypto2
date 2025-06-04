@@ -16,29 +16,28 @@ export default function CoinInfo() {
 
   return (
     <div className="flex w-12 h-full justify-content-between overflow-hidden">
-      <div className={` w-4 slide-in ${showHighlights ? "active" : ""}`}>
+      <div
+        style={{ maxWidth: "500px", minWidth: "350px" }}
+        className={`w-3 slide-in ${showHighlights ? "active" : ""}`}>
         <SingleCoinHighLights />
       </div>
-      <div className="flex h-full flex-column align-items-center w-8 ">
+      <div className="flex h-full flex-column align-items-center w-9 ">
         <div
-          className={` w-12 h-full slide-in-down ${
-            showHighlights ? "active" : ""
-          }`}
+          className={` w-12 h-5rem slide-in-down ${showHighlights ? "active" : ""
+            }`}
         >
           <ButtonGroupsNav />
         </div>
         <div
-          className={`flex  w-12 h-full slide-in-left ${
-            showHighlights ? "active" : ""
-          }`}
+          className={`flex w-12 h-full slide-in-left ${showHighlights ? "active" : ""
+            }`}
         >
           <PriceTimeline />
         </div>
 
         <div
-          className={`flex justify-content-end align-items-end w-12 h-20rem slide-in-up ${
-            showHighlights ? "active" : ""
-          }`}
+          className={`flex justify-content-end align-items-end w-12 h-20rem slide-in-up ${showHighlights ? "active" : ""
+            }`}
         >
           <ChangeOverTime />
         </div>

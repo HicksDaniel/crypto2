@@ -3,7 +3,7 @@ import { useCoinStore } from "../../../stores/useCoinStore";
 import { calculatePercentageChange } from "../../../assets/common/utils";
 
 export function ChangeOverTime() {
-  const { data, fetchData, searchCoin, timeline, updateTimeLine } =
+  const { data, fetchData, searchCoin, timeline, updateTimeLine, fetchSingleCoinData } =
     useCoinStore();
 
   const currentData = calculatePercentageChange(data?.marketData?.pricing);
@@ -11,6 +11,7 @@ export function ChangeOverTime() {
   const handleClick = (value) => {
     if (value === timeline) return;
     updateTimeLine(value);
+    fetchSingleCoinData();
   };
 
   useEffect(() => {

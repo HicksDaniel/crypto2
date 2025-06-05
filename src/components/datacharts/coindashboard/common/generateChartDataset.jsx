@@ -1,7 +1,29 @@
 import { enUS } from "date-fns/locale";
 import "chartjs-adapter-date-fns";
 import { _toLeftRightCenter } from "chart.js/helpers";
+import Chart from "chart.js/auto";
+import { Tooltip } from "chart.js";
 
+Tooltip.positioners.offsetBelow = function (elements, eventPosition) {
+  const pos = Tooltip.positioners.average(elements);
+  if (!pos) return false;
+
+  const chart = elements[0].element.$context.chart;
+  const tooltipWidth = chart.tooltip.width || 100;
+  const chartWidth = chart.width;
+
+  let adjustedX = pos.x - tooltipWidth / 2;
+
+  if (adjustedX < 10) adjustedX + 140; // Prevent left overflow
+  if (adjustedX + tooltipWidth > chartWidth - 50) {
+    adjustedX = chartWidth - tooltipWidth + 50; // Prevent right overflow
+  }
+
+  return {
+    x: adjustedX,
+    y: pos.y + 50,
+  };
+};
 export const labelMap = {
   prices: "Price (USD)",
   market_caps: "Market Cap (USD)",
@@ -64,7 +86,8 @@ export const hoverLine = {
       const xCoor = tooltip._active[0].element.x;
       const yCoor = tooltip._active[0].element.y;
 
-      ctx.strokeStyle = "black";
+      ctx.strokeStyle = "rgba(0,0,0,0.5)";
+      ctx.setLineDash([15, 5]); // 5px dash, 5px space
       ctx.lineWidth = 3;
 
       ctx.beginPath();
@@ -95,10 +118,19 @@ export const createChartOptions = (timeline = "1", selectedDataKey = "") => ({
   responsive: true,
   plugins: {
     tooltip: {
+      padding: 10,
+      position: "offsetBelow", // use custom positioner
       mode: "index",
       intersect: false,
     },
-    legend: {},
+    legend: {
+      display: true,
+      position: "top",
+      labels: {
+        boxWidth: 110,
+        usePointStyle: true,
+      },
+    },
   },
   scales: {
     x: {

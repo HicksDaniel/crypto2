@@ -22,8 +22,6 @@ export default function PriceTimeline() {
     selectedDataKey,
   } = useCoinStore();
 
-
-
   useEffect(() => {
     fetchSingleCoinData();
   }, []);

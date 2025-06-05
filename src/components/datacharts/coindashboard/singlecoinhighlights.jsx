@@ -110,7 +110,8 @@ export function SingleCoinHighLights() {
     <>
       <div
         style={{ maxWidth: "200px" }}
-        className="flex align-items-center p-0 gap-2 h-2rem">
+        className="flex align-items-center p-0 gap-2 h-2rem"
+      >
         <img width="30px" src={image} />
         <div className="font-bold">{name}</div>
         <div>{symbol?.toUpperCase()} Price</div>
@@ -181,18 +182,31 @@ export function SingleCoinHighLights() {
           <div className="m-0">
             <div className="flex justify-content-between h-2rem m-0 p-0">
               <p>Max Supply</p>
-              <p>{(maxSupply === null || maxSupply === undefined) ? "Infinite" : maxSupply.toLocaleString(undefined, { minimumFractionDigits: 0 })}</p>
+              <p>
+                {maxSupply === null || maxSupply === undefined
+                  ? "Infinite"
+                  : maxSupply.toLocaleString(undefined, {
+                      minimumFractionDigits: 0,
+                    })}
+              </p>
             </div>
             <Divider />
           </div>
         </Panel>
       </div>
       <div>
-        <Panel className="mt-5" header={`${symbol?.toUpperCase()} Historical Price`} toggleable>
+        <Panel
+          className="mt-5"
+          header={`${symbol?.toUpperCase()} Historical Price`}
+          toggleable
+        >
           <div className="m-0">
             <div className="flex justify-content-between h-2rem m-0 p-0">
               <p>24h Range</p>
-              <p>{formatLargeNumbers(marketData?.pricing.low_24h)} - {formatLargeNumbers(marketData?.pricing.high_24h)}</p>
+              <p>
+                {formatLargeNumbers(marketData?.pricing.low_24h)} -{" "}
+                {formatLargeNumbers(marketData?.pricing.high_24h)}
+              </p>
             </div>
             <Divider />
           </div>
@@ -214,23 +228,25 @@ export function SingleCoinHighLights() {
             <div className="flex justify-content-between align-items-center h-2rem m-0 p-0">
               <p>All-Time Low</p>
               <div>
-
                 <div>{formatLargeNumbers(marketData?.allTimeLow?.atl)}</div>
-              </div
+              </div>
             </div>
             <div className="flex justify-content-end">
-              {marketData?.allTimeLow?.atl_date}</div>
+              {marketData?.allTimeLow?.atl_date}
+            </div>
             <Divider />
           </div>
           <div className="m-0">
             <div className="flex justify-content-between h-2rem m-0 p-0">
               <p>Max Supply</p>
-              <p>{(maxSupply == null) ? "Infinite" : maxSupply.toLocaleString()}</p>
+              <p>
+                {maxSupply == null ? "Infinite" : maxSupply.toLocaleString()}
+              </p>
             </div>
             <Divider />
           </div>
-        </Panel >
-      </div >
+        </Panel>
+      </div>
       <h1
         onClick={() =>
           console.log(

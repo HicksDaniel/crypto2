@@ -61,13 +61,25 @@ export const structuredCoinData = async (coinData) => {
   });
 };
 
-export function mapCoinData(coin) {
+export function mapTrendingData(coin) {
   return {
     name: coin?.name || null,
     image: coin?.small || null,
     currentPrice: coin?.data?.price || null,
     priceChange24h: coin?.data?.price_change_percentage_24h?.usd || null,
     totalVolume: coin?.data?.total_volume || null,
+    marketCapRank: coin?.market_cap_rank || null,
+    symbol: coin?.symbol || null,
+  };
+}
+export function mapGainersLosersData(coin) {
+  return {
+    name: coin?.name || null,
+    image: coin?.image || null,
+    currentPrice: coin?.current_price || null,
+    priceChange24h: coin?.price_change_24h || null,
+    percentChange24h: coin?.price_change_percentage_24h || null,
+    totalVolume: coin?.total_volume || null,
     marketCapRank: coin?.market_cap_rank || null,
     symbol: coin?.symbol || null,
   };
@@ -244,25 +256,6 @@ export const DEFAULT_CHART_LIST = [
     },
   },
 ];
-
-export const fetchTrendingCoinData = async () => {
-  try {
-    const res = await fetch(`${BASE_URL}/search/trending`, {
-      method: "GET",
-      headers: FETCH_HEADER,
-    });
-
-    if (!res.ok)
-      throw new Error(
-        `Failed to fetch trending coins: ${res.status} ${res.statusText}`
-      );
-
-    const data = await res.json();
-    return data || {};
-  } catch (error) {
-    console.error("Error fetching trending coin data:", error);
-  }
-};
 
 export const fetchHistoryCoinData = async (coinId, date) => {
   if (!coinId || !date) {

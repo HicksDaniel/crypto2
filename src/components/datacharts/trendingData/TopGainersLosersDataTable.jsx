@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import { useEffect } from "react";
 
 import { DataTable } from "primereact/datatable";
 import { Column } from "primereact/column";
@@ -12,13 +12,13 @@ import {
 } from "./tableBodyStyles.jsx";
 import { useNavigate } from "react-router";
 
-export default function DefinedDataTable() {
+export default function TopGainersLosersDataTable({ gainer }) {
   const navigate = useNavigate();
   const {
     fetchSingleCoinData,
+    topGainersData,
+    topLosersData,
     updateSearchCoin,
-
-    formattedTrendingData,
     loading,
   } = useCoinStore();
 
@@ -38,13 +38,15 @@ export default function DefinedDataTable() {
     );
   };
 
-  const definedDataReady = formattedTrendingData && !loading;
+  const dataReady = topGainersData && topLosersData && !loading;
+
+  const GainersLosersData = gainer === true ? topGainersData : topLosersData;
 
   return (
     <>
       <div className="flex w-12 bg-primary-600 justify-content-center p-0 m-0 w-9">
-        {definedDataReady && (
-          <DataTable pt={dataTableStyles} value={formattedTrendingData}>
+        {dataReady && (
+          <DataTable pt={dataTableStyles} value={GainersLosersData}>
             <Column body={displayNameTemplate} header="Company" />
             <Column body={imageBodyTemplate} header="Symbol" />
             <Column
@@ -62,8 +64,8 @@ export default function DefinedDataTable() {
             <Column
               sortable
               body={priceChangeDataTemplate}
-              field="priceChange24h"
-              header="24h Price Change"
+              field="percentChange24h"
+              header="24h Change"
             />
             <Column field="totalVolume" header="Total Volume" />
           </DataTable>

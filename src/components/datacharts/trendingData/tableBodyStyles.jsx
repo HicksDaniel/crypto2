@@ -1,7 +1,7 @@
 export const formatCurrency = (value, numType) => {
   return value.toLocaleString("en-US", {
     maximumSignificantDigits: 5,
-    maximumFractionDigits: 5,
+    maximumFractionDigits: 2,
     style: numType,
     currency: "USD",
   });
@@ -41,15 +41,15 @@ export const currentPriceDataTemplate = (rowData) => {
 };
 
 export const priceChangeDataTemplate = (rowData) => {
-  const iconColor = rowData.priceChange24h > 0 ? "green" : "red";
+  const iconColor = rowData.percentChange24h > 0 ? "green" : "red";
   const deduceSymbol =
-    rowData.priceChange24h > 0
+    rowData.percentChange24h > 0
       ? "m-2 pi pi-chevron-up"
       : "m-2 pi pi-chevron-down";
 
   return (
     <div className="flex w-full align-items-center justify-content-end">
-      {formatCurrency(rowData.priceChange24h / 100, "percent")}
+      {formatCurrency(rowData.percentChange24h / 100, "percent")}
 
       <i
         className={deduceSymbol}

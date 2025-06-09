@@ -6,11 +6,11 @@ import {
   DEFAULT_CHART_LIST,
   DEFAULT_DATA_STATE,
   MOCK_USER_COINS,
-  mapCoinData,
+  mapTrendingData,
+  mapGainersLosersData,
   mapHistoricalData,
   BASE_URL,
   FETCH_HEADER,
-  fetchTrendingCoinData,
   fetchHistoryCoinData,
   fetchCoinData,
   structuredCoinData,
@@ -19,6 +19,8 @@ import {
 export const useCoinStore = create((set, get) => ({
   data: DEFAULT_DATA_STATE,
   searchCoin: DEFAULT_COIN,
+  topGainersData: [],
+  topLosersData: [],
   singleCoinData: [],
   rawTrendingData: [],
   formattedTrendingData: [],
@@ -35,6 +37,13 @@ export const useCoinStore = create((set, get) => ({
   coinList: [],
   timeline: "1",
   selectedDataKey: "prices",
+
+  updateTopGainers: (value) => {
+    set({ topGainersData: value });
+  },
+  updateTopLosers: (value) => {
+    set({ topLosersData: value });
+  },
 
   updateTimeLine: (value) => {
     set({ timeline: value });
@@ -124,47 +133,77 @@ export const useCoinStore = create((set, get) => ({
 
   fetchTrendingData: async () => {
     set({ loading: true });
+
     try {
-      const response = await fetchTrendingCoinData();
-      if (!response) throw new Error("No Results for Trending Data");
+      const res = await fetch(`${BASE_URL}/search/trending`, {
+        method: "GET",
+        headers: FETCH_HEADER,
+      });
 
-      const formattedTrendingData = response.coins.map((coin) => ({
-        ...mapCoinData(coin.item),
-      }));
-      set({ rawTrendingData: response, formattedTrendingData, loading: false });
-    } catch (error) {
-      set({ formattedTrendingData: [], loading: false });
-      console.warn("Issue fetching trending coin data", error);
-    }
-  },
-
-  fetchDefinedData: async (value) => {
-    const isTrending = value === "trending" ? "search" : "coins";
-
-    set({ loading: true });
-    try {
-      const res = await fetch(
-        `${BASE_URL}/${isTrending}/${value}?vs_currency=usd`,
-        {
-          method: "GET",
-          headers: FETCH_HEADER,
-        }
-      );
-
-      if (!res.ok)
+      if (!res.ok) {
         throw new Error(
           `Failed to fetch trending coins: ${res.status} ${res.statusText}`
         );
+      }
+
+      const data = await res.json();
+      if (!data || !Array.isArray(data.coins)) {
+        throw new Error("Invalid data format received from API");
+      }
+
+      const formattedTrendingData = data.coins.map((coin) => ({
+        ...mapTrendingData(coin.item),
+      }));
+
+      set({ rawTrendingData: data, formattedTrendingData, loading: false });
+    } catch (error) {
+      console.warn("Issue fetching trending coin data", error);
+      set({ formattedTrendingData: [], loading: false });
+    }
+  },
+
+  fetchGainersLosersData: async (value, dataset) => {
+    set({ loading: true });
+
+    try {
+      const res = await fetch(`${BASE_URL}/${value}`, {
+        method: "GET",
+        headers: FETCH_HEADER,
+      });
+
+      if (!res.ok) {
+        throw new Error(
+          `Failed to fetch coins: ${res.status} ${res.statusText}`
+        );
+      }
 
       const data = await res.json();
 
-      const formattedDefinedData = await data.coins.map((coin) => ({
-        ...mapCoinData(coin.item),
+      console.log("data", data);
+
+      const mappedData = data.map((coin) => ({
+        ...mapGainersLosersData(coin),
       }));
-      set({ rawTrendingData: data, formattedDefinedData, loading: false });
+
+      const topGainers = [...mappedData]
+        .filter((coin) => coin.percentChange24h != null)
+        .sort((a, b) => b.percentChange24h - a.percentChange24h)
+        .slice(0, 15);
+
+      const topLosers = [...mappedData]
+        .filter((coin) => coin.percentChange24h != null)
+        .sort((a, b) => a.percentChange24h - b.percentChange24h)
+        .slice(0, 15);
+
+      set({
+        rawTrendingData: data,
+        topGainersData: topGainers,
+        topLosersData: topLosers,
+        loading: false,
+      });
     } catch (error) {
       set({ formattedTrendingData: [], loading: false });
-      console.warn("Issue fetching trending coin data", error);
+      console.warn("Issue fetching coin data", error);
     }
   },
 

@@ -12,12 +12,13 @@ import {
 } from "./tableBodyStyles.jsx";
 import { useNavigate } from "react-router";
 
-export default function TopGainersLosersDataTable({ gainer }) {
+export default function TopGainersLosersDataTable({ tablespec }) {
   const navigate = useNavigate();
   const {
     fetchSingleCoinData,
     topGainersData,
     topLosersData,
+    topCoinsData,
     updateSearchCoin,
     loading,
   } = useCoinStore();
@@ -40,13 +41,26 @@ export default function TopGainersLosersDataTable({ gainer }) {
 
   const dataReady = topGainersData && topLosersData && !loading;
 
-  const GainersLosersData = gainer === true ? topGainersData : topLosersData;
+  let TopGainersLosersData;
+  switch (tablespec) {
+    case (tablespec = "topcoins"):
+      TopGainersLosersData = topCoinsData;
+      break;
+    case (tablespec = "topgainers"):
+      TopGainersLosersData = topGainersData;
+      break;
+    case (tablespec = "toplosers"):
+      TopGainersLosersData = topLosersData;
+      break;
+    default:
+      TopGainersLosersData = [];
+  }
 
   return (
     <>
       <div className="flex w-12 bg-primary-600 justify-content-center p-0 m-0 w-9">
         {dataReady && (
-          <DataTable pt={dataTableStyles} value={GainersLosersData}>
+          <DataTable pt={dataTableStyles} value={TopGainersLosersData}>
             <Column body={displayNameTemplate} header="Company" />
             <Column body={imageBodyTemplate} header="Symbol" />
             <Column

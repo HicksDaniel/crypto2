@@ -21,6 +21,7 @@ export const useCoinStore = create((set, get) => ({
   searchCoin: DEFAULT_COIN,
   topGainersData: [],
   topLosersData: [],
+  topCoinsData: [],
   singleCoinData: [],
   rawTrendingData: [],
   formattedTrendingData: [],
@@ -37,13 +38,6 @@ export const useCoinStore = create((set, get) => ({
   coinList: [],
   timeline: "1",
   selectedDataKey: "prices",
-
-  updateTopGainers: (value) => {
-    set({ topGainersData: value });
-  },
-  updateTopLosers: (value) => {
-    set({ topLosersData: value });
-  },
 
   updateTimeLine: (value) => {
     set({ timeline: value });
@@ -76,6 +70,9 @@ export const useCoinStore = create((set, get) => ({
   },
 
   fetchHistoryData: async (coin, dates, localCurrency) => {
+    console.log("coin", coin);
+    console.log("dates", dates);
+    console.log("localCurrency", localCurrency);
     set({ loading: true, error: null });
     try {
       const promisesArray = dates.map((date) =>
@@ -92,7 +89,7 @@ export const useCoinStore = create((set, get) => ({
               result.value,
               localCurrency
             );
-
+            console.log(resultsArray);
             resultsArray.push(formattedResults);
           } catch (err) {
             console.error("Error formatting historical data:", err);
@@ -162,7 +159,8 @@ export const useCoinStore = create((set, get) => ({
     }
   },
 
-  fetchGainersLosersData: async (value, dataset) => {
+  fetchTopsGainersLosersData: async (value, dataset) => {
+    console.log("store fetch", value);
     set({ loading: true });
 
     try {
@@ -190,6 +188,11 @@ export const useCoinStore = create((set, get) => ({
         .sort((a, b) => b.percentChange24h - a.percentChange24h)
         .slice(0, 15);
 
+      const topCoins = [...mappedData]
+        .filter((coin) => coin.marketCapRank != null)
+        .sort((a, b) => a.marketCapRank - b.marketCapRank)
+        .slice(0, 15);
+
       const topLosers = [...mappedData]
         .filter((coin) => coin.percentChange24h != null)
         .sort((a, b) => a.percentChange24h - b.percentChange24h)
@@ -197,6 +200,7 @@ export const useCoinStore = create((set, get) => ({
 
       set({
         rawTrendingData: data,
+        topCoinsData: topCoins,
         topGainersData: topGainers,
         topLosersData: topLosers,
         loading: false,

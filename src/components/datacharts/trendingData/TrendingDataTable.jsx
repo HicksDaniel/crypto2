@@ -17,7 +17,6 @@ export default function DefinedDataTable() {
   const {
     fetchSingleCoinData,
     updateSearchCoin,
-
     formattedTrendingData,
     loading,
   } = useCoinStore();

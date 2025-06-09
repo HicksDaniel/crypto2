@@ -15,13 +15,8 @@ const endDate = new Date();
 export default function HistoricalDataTable() {
   const [inputDates, setInputDates] = useState([startDate, endDate]);
   const navigate = useNavigate();
-  const {
-    fetchHistoryData,
-    formattedHistoricalData,
-    searchCoin,
-    fetchData,
-    loading,
-  } = useCoinStore();
+  const { fetchHistoryData, formattedHistoricalData, searchCoin, loading } =
+    useCoinStore();
 
   const CompanyData = (rowData) => {
     return (

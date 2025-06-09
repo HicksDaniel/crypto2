@@ -85,15 +85,16 @@ export function mapGainersLosersData(coin) {
   };
 }
 export function mapHistoricalData(coin, localCurrency) {
+  const price = coin?.market_data?.current_price?.[localCurrency];
+  const volume = coin?.market_data?.total_volume?.[localCurrency];
+  const cap = coin?.market_data?.market_cap?.[localCurrency];
+
   return {
     name: coin?.name || null,
     image: coin?.image?.small || null,
-    currentPrice:
-      coin?.market_data?.current_price?.[localCurrency].toFixed(2) || null,
-    totalVolume:
-      coin?.market_data?.total_volume?.[localCurrency].toFixed(2) || null,
-    marketCap:
-      coin?.market_data?.market_cap?.[localCurrency].toFixed(2) || null,
+    currentPrice: price != null ? price.toFixed(2) : null,
+    totalVolume: volume != null ? volume.toFixed(2) : null,
+    marketCap: cap != null ? cap.toFixed(2) : null,
     symbol: coin?.symbol || null,
     date: coin?.date || null,
   };

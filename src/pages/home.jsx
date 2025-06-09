@@ -7,12 +7,8 @@ import { useCoinStore } from "../stores/useCoinStore";
 
 export default function Home() {
   const [selectedChart, setSelectedChart] = useState(null);
-  const {
-    formattedDefinedData,
-    fetchGainersLosersData,
-    fetchTrendingData,
-    fetchHistoryData,
-  } = useCoinStore();
+  const { fetchTopsGainersLosersData, fetchTrendingData, fetchHistoryData } =
+    useCoinStore();
 
   const charts = [
     {
@@ -24,21 +20,20 @@ export default function Home() {
     {
       name: "Top Coins",
       value: "topcoins",
-      url: "coins/markets?vs_currency=usd&order=market_cap_desc&per_page=15&page=1",
-      comp: <DefinedDataTable />,
+      url: "coins/markets?vs_currency=usd&order=market_cap_desc&per_page=100&page=1&marketcap_rank=24h",
+      comp: <TopGainersLosersDataTable tablespec="topcoins" />,
     },
     {
       name: "Top Gainers",
       value: "gainers",
       url: "coins/markets?vs_currency=usd&order=market_cap_desc&per_page=500&page=1&price_change_percentage=24h",
-      comp: <TopGainersLosersDataTable gainer={true} />,
+      comp: <TopGainersLosersDataTable tablespec="topgainers" />,
     },
     {
       name: "Top Losers",
       value: "losers",
       url: "coins/markets?vs_currency=usd&order=market_cap_desc&per_page=100&page=1&price_change_percentage=24h",
-
-      comp: <TopGainersLosersDataTable gainer={false} />,
+      comp: <TopGainersLosersDataTable tablespec="toplosers" />,
     },
     { name: "Most Viewed", value: "most_viewed", comp: <div>Coming Soon</div> },
     {
@@ -66,10 +61,10 @@ export default function Home() {
 
       case "Top Gainers":
       case "Top Losers":
-        fetchGainersLosersData(selected.url, selected.value); // Likely the correct function
+      case "Top Coins":
+        fetchTopsGainersLosersData(selected.url, selected.value); // Likely the correct function
         break;
 
-      case "Top Coins":
       case "Trending Coins":
         fetchTrendingData(selected.url);
         break;

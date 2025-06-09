@@ -78,7 +78,7 @@ export const useCoinStore = create((set, get) => ({
       const promisesArray = dates.map((date) =>
         fetchHistoryCoinData(coin, date)
       );
-
+git p
       const results = await Promise.allSettled(promisesArray);
 
       const resultsArray = [];

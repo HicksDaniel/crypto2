@@ -62,7 +62,7 @@ export default function Home() {
       case "Top Gainers":
       case "Top Losers":
       case "Top Coins":
-        fetchTopsGainersLosersData(selected.url, selected.value); // Likely the correct function
+        fetchTopsGainersLosersData(selected.url, selected.value);
         break;
 
       case "Trending Coins":

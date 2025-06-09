@@ -186,8 +186,8 @@ export function SingleCoinHighLights() {
                 {maxSupply === null || maxSupply === undefined
                   ? "Infinite"
                   : maxSupply.toLocaleString(undefined, {
-                      minimumFractionDigits: 0,
-                    })}
+                    minimumFractionDigits: 0,
+                  })}
               </p>
             </div>
             <Divider />

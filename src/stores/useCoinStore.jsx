@@ -1,5 +1,6 @@
 import React from "react";
 import { create } from "zustand";
+import { eachDayOfInterval } from "date-fns";
 
 import {
   DEFAULT_COIN,
@@ -16,9 +17,15 @@ import {
   structuredCoinData,
 } from "../assets/common/utils";
 
+const startDate = new Date();
+startDate.setDate(startDate.getDate() - 1);
+
+const endDate = new Date();
+
 export const useCoinStore = create((set, get) => ({
   data: DEFAULT_DATA_STATE,
   searchCoin: DEFAULT_COIN,
+  selectedDates: [startDate, endDate],
   topGainersData: [],
   topLosersData: [],
   topCoinsData: [],
@@ -37,7 +44,12 @@ export const useCoinStore = create((set, get) => ({
   visibleCharts: [],
   coinList: [],
   timeline: "1",
+  localCurrency: "usd",
   selectedDataKey: "prices",
+
+  updateSelectedDates: (value, nextValue) => {
+    set({ selectedDates: [value, nextValue] })
+  },
 
   updateTimeLine: (value) => {
     set({ timeline: value });
@@ -69,14 +81,17 @@ export const useCoinStore = create((set, get) => ({
     }
   },
 
-  fetchHistoryData: async (coin, dates, localCurrency) => {
-    console.log("coin", coin);
-    console.log("dates", dates);
-    console.log("localCurrency", localCurrency);
+  fetchHistoryData: async () => {
+    const { searchCoin, selectedDates, localCurrency } = get();
+
+    const start = selectedDates[0];
+    const end = selectedDates[1];
+    const dates = start && end ? eachDayOfInterval({ start, end }) : [];
+
     set({ loading: true, error: null });
     try {
       const promisesArray = dates.map((date) =>
-        fetchHistoryCoinData(coin, date)
+        fetchHistoryCoinData(searchCoin, date)
       );
 
       const results = await Promise.allSettled(promisesArray);
@@ -89,7 +104,7 @@ export const useCoinStore = create((set, get) => ({
               result.value,
               localCurrency
             );
-            console.log(resultsArray);
+
             resultsArray.push(formattedResults);
           } catch (err) {
             console.error("Error formatting historical data:", err);

@@ -6,17 +6,14 @@ import { Calendar } from "primereact/calendar";
 import { useCoinStore } from "../../../stores/useCoinStore.jsx";
 import { dataTableStyles } from "../../../assets/common/passthroughStyles.jsx";
 import { useNavigate } from "react-router";
+import { formatCurrency } from "../trendingData/tableBodyStyles.jsx";
 
-const startDate = new Date();
-startDate.setDate(startDate.getDate() - 1);
 
-const endDate = new Date();
 
 export default function HistoricalDataTable() {
-  const [inputDates, setInputDates] = useState([startDate, endDate]);
-  const navigate = useNavigate();
-  const { fetchHistoryData, formattedHistoricalData, searchCoin, loading } =
+  const { selectedDates, fetchHistoryData, updateSelectedDates, formattedHistoricalData, searchCoin, loading } =
     useCoinStore();
+  const navigate = useNavigate();
 
   const CompanyData = (rowData) => {
     return (
@@ -33,22 +30,18 @@ export default function HistoricalDataTable() {
   };
 
   const handleChange = (dateValues) => {
+
+
     if (dateValues && dateValues.length === 2) {
-      setInputDates(dateValues);
+      updateSelectedDates(dateValues[0], dateValues[1]);
+
+    };
+    if (dateValues && dateValues[0] && dateValues[1]) {
+      fetchHistoryData();
     }
   };
 
-  const localCurrency = "usd";
 
-  const start = inputDates[0];
-  const end = inputDates[1];
-  const dates = start && end ? eachDayOfInterval({ start, end }) : [];
-
-  useEffect(() => {
-    if (start && end && dates.length > 0) {
-      fetchHistoryData(searchCoin, dates, localCurrency);
-    }
-  }, [start, end, searchCoin]);
 
   const historicalDataReady = formattedHistoricalData && !loading;
 
@@ -61,26 +54,26 @@ export default function HistoricalDataTable() {
       <div className="card w-6 flex justify-content-center">
         <Calendar
           className="w-12"
-          value={inputDates}
+          dateFormat="MM/dd/yy"
+          value={selectedDates}
           onChange={(e) => handleChange(e.value)}
           selectionMode="range"
           readOnlyInput
           hideOnRangeSelection
         />
       </div>
+
       <div className="flex bg-primary-600 justify-content-center p-0 m-0 w-9">
-        {historicalDataReady && (
+        {historicalDataReady ? (
           <DataTable pt={dataTableStyles} value={formattedHistoricalData}>
             <Column sortable field="date" header="Date" />
             <Column body={CompanyData} header="Company" />
-            <Column sortable field="marketCap" header="Market Cap" />
+            <Column field="marketCap" header="Market Cap" body={(rowData) => formatCurrency(rowData.marketCap)} />
             <Column field="totalVolume" header="Total Volume" />
-            <Column
-              field="currentPrice"
-              bodyClassName="text-justify"
-              header="Price"
-            />
+            <Column field="currentPrice" header="Price" body={(rowData) => formatCurrency(rowData.currentPrice)} />
           </DataTable>
+        ) : (
+          !loading && <div>No historical data found.</div>
         )}
       </div>
     </>

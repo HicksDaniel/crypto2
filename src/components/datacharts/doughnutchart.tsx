@@ -47,9 +47,7 @@ export default function DoughnutChart() {
     };
     const options = {
       plugins: {
-        legend: {
-
-        },
+        legend: {},
       },
       cutout: "50%",
     };
@@ -61,7 +59,17 @@ export default function DoughnutChart() {
   return (
     <>
       {!loading && hasData && (
-        <Chart style={{ display: "flex", justifyContent: "center", width: "inherit", height: "20rem" }} type="doughnut" data={chartData} options={chartOptions} />
+        <Chart
+          style={{
+            display: "flex",
+            justifyContent: "center",
+            width: "inherit",
+            height: "20rem",
+          }}
+          type="doughnut"
+          data={chartData}
+          options={chartOptions}
+        />
       )}
     </>
   );

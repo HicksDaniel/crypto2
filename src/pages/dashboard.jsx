@@ -1,24 +1,14 @@
 import { useState, useEffect } from "react";
 import BasicCard from "../components/cards/basiccard";
 import { Button } from "primereact/button";
-import { RadioButton } from 'primereact/radiobutton';
+import { RadioButton } from "primereact/radiobutton";
 import { Reorder } from "framer-motion";
-
 
 import "primeflex/primeflex.css";
 import { useCoinStore } from "../stores/useCoinStore.jsx";
-// import DoughnutChart from "../components/datacharts/doughnutchart";
-// import StyledLineChart from "../components/datacharts/styledlinechart";
-// import CompoundLineChart from "../components/datacharts/compoundlinechart";
-
-// const chartCategories = [
-//   { name: "Compound L Chart", key: "C", showing: false, comp: <CompoundLineChart /> },
-//   { name: "Doughnut Chart", key: "D", showing: false, comp: <DoughnutChart /> },
-//   { name: "Styled Line Chart", key: "S", showing: false, comp: <StyledLineChart /> },
-// ];
 
 export default function Dashboard() {
-  const { data, loading, error, fetchData, visibleCharts, updateVisibleCharts } = useCoinStore();
+  const { data, loading, error, fetchData, visibleCharts } = useCoinStore();
 
   useEffect(() => {
     fetchData();
@@ -32,13 +22,16 @@ export default function Dashboard() {
   }, []);
 
   const renderedCharts = visibleCharts.map((chart) => {
-    data !== null && !loading
+    data !== null && !loading;
     return (
-      (
-        <BasicCard maxWidth={chart.size.maxWidth} minWidth={chart.size.minWidth} width={chart.size.width} comp={chart.comp} />
-      )
-    )
-  })
+      <BasicCard
+        maxWidth={chart.size.maxWidth}
+        minWidth={chart.size.minWidth}
+        width={chart.size.width}
+        comp={chart.comp}
+      />
+    );
+  });
 
   // const renderedCharts = () => {
   //   return (
@@ -75,17 +68,9 @@ export default function Dashboard() {
   //   )
   // }
 
-
-
-
-
-
   return (
     <div className="flex flex-row justify-content-center flex-wrap row-gap-3 pt-5">
-
-
       {renderedCharts}
-
     </div>
   );
-};
+}

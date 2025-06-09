@@ -4,11 +4,16 @@ import DefinedDataTable from "../components/datacharts/trendingData/TrendingData
 import TopGainersLosersDataTable from "../components/datacharts/trendingData/TopGainersLosersDataTable";
 import HistoricalDataTable from "../components/datacharts/historicalData/HistoricalDataTable";
 import { useCoinStore } from "../stores/useCoinStore";
+import { Skeleton } from "primereact/skeleton";
 
 export default function Home() {
   const [selectedChart, setSelectedChart] = useState(null);
-  const { fetchTopsGainersLosersData, fetchTrendingData, fetchHistoryData } =
-    useCoinStore();
+  const {
+    fetchTopsGainersLosersData,
+    fetchTrendingData,
+    fetchHistoryData,
+    loading,
+  } = useCoinStore();
 
   const charts = [
     {
@@ -73,6 +78,28 @@ export default function Home() {
         break;
     }
   };
+
+  if (loading) {
+    return (
+      <>
+        <Dropdown
+          value={selectedChart?.value}
+          onChange={(e) => handleSelection(e.value)}
+          options={charts}
+          optionLabel="name"
+          optionValue="value"
+          placeholder="Select a Chart"
+          className="w-full md:w-14rem"
+        />
+        <div
+          style={{ height: "800px", borderRadius: "20px" }}
+          className="flex w-10 border-rounded-3xl align-items-center"
+        >
+          <Skeleton height="100%" />
+        </div>
+      </>
+    );
+  }
 
   return (
     <>

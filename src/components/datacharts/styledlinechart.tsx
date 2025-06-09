@@ -1,14 +1,17 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { Chart } from "primereact/chart";
 import { useCoinStore } from "../../stores/useCoinStore.jsx";
 
 export default function StyledLineChart() {
-  const [chartData, setChartData] = useState({});
-  const [chartOptions, setChartOptions] = useState({});
-  const { data, userCoins, loading, error, fetchData } = useCoinStore();
-  const bitcoin = data.find((c: {}) => c.name === "Bitcoin");
+  const chartRef = useRef(null);
+  const [chartData, setChartData] = useState(null);
+  const [chartOptions, setChartOptions] = useState(null);
+  const { data, userCoins } = useCoinStore();
+
+  const bitcoin = data.find((c) => c.name === "Bitcoin");
   const ethereum = data.find((c) => c.name === "Ethereum");
   const dogecoin = data.find((c) => c.name === "Dogecoin");
+
   const userBitcoin = userCoins.find((c) => c.name === "bitcoin");
   const userEthereum = userCoins.find((c) => c.name === "ethereum");
   const userDogecoin = userCoins.find((c) => c.name === "dogecoin");
@@ -30,30 +33,37 @@ export default function StyledLineChart() {
   };
 
   useEffect(() => {
+    if (
+      !bitcoin ||
+      !ethereum ||
+      !dogecoin ||
+      !userBitcoin ||
+      !userEthereum ||
+      !userDogecoin
+    ) {
+      return;
+    }
+
     const documentStyle = getComputedStyle(document.documentElement);
-    const textColor = documentStyle.getPropertyValue("--text-color");
-    const textColorSecondary = documentStyle.getPropertyValue(
-      "--text-color-secondary"
-    );
-    const surfaceBorder = documentStyle.getPropertyValue("--surface-border");
+
     const data = {
       labels: [0, 0.15, 1, 7, 14, 30, 60, 200, 365],
       datasets: [
         {
-          label: bitcoin?.name,
+          label: bitcoin.name,
           data: calculatePercentageChange(
-            bitcoin?.marketData?.pricing,
-            userBitcoin?.owned
+            bitcoin.marketData?.pricing,
+            userBitcoin.owned
           ),
           fill: false,
           tension: 0.4,
           borderColor: documentStyle.getPropertyValue("--green-500"),
         },
         {
-          label: ethereum?.name,
+          label: ethereum.name,
           data: calculatePercentageChange(
-            ethereum?.marketData?.pricing,
-            userEthereum?.owned
+            ethereum.marketData?.pricing,
+            userEthereum.owned
           ),
           fill: false,
           borderDash: [2, 5],
@@ -61,25 +71,24 @@ export default function StyledLineChart() {
           borderColor: documentStyle.getPropertyValue("--blue-500"),
         },
         {
-          label: dogecoin?.name,
+          label: dogecoin.name,
           data: calculatePercentageChange(
-            dogecoin?.marketData?.pricing,
-            userDogecoin?.owned
+            dogecoin.marketData?.pricing,
+            userDogecoin.owned
           ),
           fill: false,
-          borderColor: documentStyle.getPropertyValue("--yellow-500"),
           tension: 0.4,
+          borderColor: documentStyle.getPropertyValue("--yellow-500"),
         },
       ],
     };
+
     const options = {
       maintainAspectRatio: false,
       aspectRatio: 1,
       responsive: true,
       plugins: {
-        legend: {
-
-        },
+        legend: {},
       },
       scales: {
         x: {
@@ -97,39 +106,34 @@ export default function StyledLineChart() {
           },
           reverse: true,
           type: "logarithmic",
-
-          // ticks: {
-          //   color: textColorSecondary,
-          // },
-          // grid: {
-          //   color: surfaceBorder,
-          // },
         },
-        y: {
-          // ticks: {
-          //   color: textColorSecondary,
-          // },
-          // grid: {
-          //   color: surfaceBorder,
-          // },
-        },
+        y: {},
       },
     };
 
     setChartData(data);
     setChartOptions(options);
-  }, []);
+
+    // ✅ Proper cleanup
+    return () => {
+      if (
+        chartRef.current?.chart &&
+        typeof chartRef.current.chart.destroy === "function"
+      ) {
+        chartRef.current.chart.destroy();
+      }
+    };
+  }, [data, userCoins]);
+
+  if (!chartData || !chartOptions) return null;
 
   return (
-
     <Chart
-      style={{ display: "flex", justifySelf: "center", width: "95%", height: "20rem" }}
-
-      className=""
+      ref={chartRef}
       type="line"
       data={chartData}
       options={chartOptions}
+      style={{ width: "95%", height: "20rem" }}
     />
-
   );
 }

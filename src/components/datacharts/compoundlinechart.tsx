@@ -6,107 +6,64 @@ import { calculatePercentageChange } from "../../assets/common/utils.jsx";
 export default function CompoundLineChart() {
   const [chartData, setChartData] = useState({});
   const [chartOptions, setChartOptions] = useState({});
-  const { data, userCoins, loading, error, fetchData } = useCoinStore();
-  const bitcoin = data.find((c) => c.name === "Bitcoin");
-  const ethereum = data.find((c) => c.name === "Ethereum");
-  const dogecoin = data.find((c) => c.name === "Dogecoin");
-  const userBitcoin = userCoins.find((c) => c.name === "bitcoin");
-  const userEthereum = userCoins.find((c) => c.name === "ethereum");
-  const userDogecoin = userCoins.find((c) => c.name === "dogecoin");
+  const { data, userCoins } = useCoinStore();
 
-  const handleClick = () => { };
-
-  const calculatePricingDifference = (coin1, coin2) => {
-    const array1 = coin1;
-    const array2 = coin2;
-
-    const sum = array1.map((num, i) => {
-      return num + array2[i];
-    });
-    return sum;
-  };
-  const calculatePricingDifferenceAgain = (coin1, coin2, coin3) => {
-    const array1 = coin1;
-    const array2 = coin2;
-    const array3 = coin3;
-
-    const sum = array1.map((num, i) => {
-      return num + array2[i] + array3[i];
-    });
-    return sum;
-  };
-
+  const userFavoritesArray = ["bitcoin", "ethereum", "dogecoin"];
 
   useEffect(() => {
     const documentStyle = getComputedStyle(document.documentElement);
+    const colorPalette = [
+      documentStyle.getPropertyValue("--green-500"),
+      documentStyle.getPropertyValue("--blue-500"),
+      documentStyle.getPropertyValue("--yellow-500"),
+      documentStyle.getPropertyValue("--purple-500"),
+      documentStyle.getPropertyValue("--orange-500"),
+    ];
 
-    const textColorSecondary = documentStyle.getPropertyValue(
-      "--text-color-secondary"
-    );
-    const surfaceBorder = documentStyle.getPropertyValue("--surface-border");
+    const labels = [0, 0.15, 1, 7, 14, 30, 60, 200, 365];
 
-    const data = {
-      labels: [0, 0.15, 1, 7, 14, 30, 60, 200, 365],
-      datasets: [
-        {
-          label: bitcoin?.name,
-          data: calculatePercentageChange(
-            bitcoin?.marketData?.pricing,
-            userBitcoin?.owned
-          ),
+    let cumulativeData = new Array(labels.length).fill(0);
 
+    const datasets = userFavoritesArray
+      .map((favoriteName, index) => {
+        const marketCoin = data.find(
+          (coin) => coin.name.toLowerCase() === favoriteName
+        );
+        const userCoin = userCoins.find(
+          (coin) => coin.name.toLowerCase() === favoriteName
+        );
+
+        if (!marketCoin || !userCoin) return null;
+
+        const percentageChangeData = calculatePercentageChange(
+          marketCoin.marketData?.pricing,
+          userCoin.owned
+        );
+
+        cumulativeData = cumulativeData.map(
+          (val, i) => val + percentageChangeData[i]
+        );
+
+        return {
+          label: marketCoin.name,
+          data: [...cumulativeData],
           fill: true,
           tension: 0.4,
-          backgroundColor: documentStyle.getPropertyValue("--green-500"),
-        },
-        {
-          label: ethereum?.name,
-          data: calculatePricingDifference(
-            calculatePercentageChange(
-              bitcoin?.marketData?.pricing,
-              userBitcoin?.owned
-            ),
-            calculatePercentageChange(
-              ethereum?.marketData?.pricing,
-              userEthereum?.owned
-            )
-          ),
-          fill: true,
-          tension: 0.4,
-          backgroundColor: documentStyle.getPropertyValue("--blue-500"),
-        },
-        {
-          label: dogecoin?.name,
-          data: calculatePricingDifferenceAgain(
-            calculatePercentageChange(
-              bitcoin?.marketData?.pricing,
-              userBitcoin?.owned
-            ),
-            calculatePercentageChange(
-              ethereum?.marketData?.pricing,
-              userEthereum?.owned
-            ),
-            calculatePercentageChange(
-              dogecoin?.marketData?.pricing,
-              userDogecoin?.owned
-            )
-          ),
-          fill: true,
-          borderColor: documentStyle.getPropertyValue("--yellow-500"),
-          tension: 0.4,
-          backgroundColor: "rgba(255,167,38)",
-        },
-      ],
-    };
+          backgroundColor: colorPalette[index % colorPalette.length],
+        };
+      })
+      .filter(Boolean); // remove nulls
 
-    const options = {
+    setChartData({
+      labels,
+      datasets,
+    });
+
+    setChartOptions({
       maintainAspectRatio: false,
       aspectRatio: 1,
-
       plugins: {
-        legend: {
-
-        },
+        legend: {},
       },
       scales: {
         x: {
@@ -124,23 +81,15 @@ export default function CompoundLineChart() {
           },
           reverse: true,
           type: "logarithmic",
-
-
         },
-        y: {
-
-        },
+        y: {},
       },
-    };
-
-    setChartData(data);
-    setChartOptions(options);
-  }, []);
+    });
+  }, [data, userCoins]);
 
   return (
     <Chart
       style={{ display: "flex", width: "95%", height: "20rem" }}
-      onClick={handleClick}
       type="line"
       data={chartData}
       options={chartOptions}

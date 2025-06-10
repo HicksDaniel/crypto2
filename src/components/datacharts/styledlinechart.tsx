@@ -1,129 +1,118 @@
 import React, { useState, useEffect, useRef } from "react";
 import { Chart } from "primereact/chart";
 import { useCoinStore } from "../../stores/useCoinStore.jsx";
+import { calculateLineChartData } from "../../assets/common/utils.jsx";
 
 export default function StyledLineChart() {
   const chartRef = useRef(null);
   const [chartData, setChartData] = useState(null);
   const [chartOptions, setChartOptions] = useState(null);
-  const { data, userCoins } = useCoinStore();
+  const { data, userFavoritesData } = useCoinStore();
 
-  const bitcoin = data.find((c) => c.name === "Bitcoin");
-  const ethereum = data.find((c) => c.name === "Ethereum");
-  const dogecoin = data.find((c) => c.name === "Dogecoin");
 
-  const userBitcoin = userCoins.find((c) => c.name === "bitcoin");
-  const userEthereum = userCoins.find((c) => c.name === "ethereum");
-  const userDogecoin = userCoins.find((c) => c.name === "dogecoin");
 
-  const calculatePercentageChange = (coinData, userData) => {
-    const currentPrice = coinData?.currentPrice;
-
-    return [
-      userData * currentPrice,
-      (userData * currentPrice) / (1 + coinData?.pcp_1h / 100),
-      (userData * currentPrice) / (1 + coinData?.pcp_24h / 100),
-      (userData * currentPrice) / (1 + coinData?.pcp_7day / 100),
-      (userData * currentPrice) / (1 + coinData?.pcp_14day / 100),
-      (userData * currentPrice) / (1 + coinData?.pcp_30day / 100),
-      (userData * currentPrice) / (1 + coinData?.pcp_60day / 100),
-      (userData * currentPrice) / (1 + coinData?.pcp_200day / 100),
-      (userData * currentPrice) / (1 + coinData?.pcp_1year / 100),
-    ];
-  };
 
   useEffect(() => {
-    if (
-      !bitcoin ||
-      !ethereum ||
-      !dogecoin ||
-      !userBitcoin ||
-      !userEthereum ||
-      !userDogecoin
-    ) {
-      return;
-    }
+    if (!userFavoritesData || userFavoritesData.length === 0) return;
 
     const documentStyle = getComputedStyle(document.documentElement);
+    const colorPalette = [
+      documentStyle.getPropertyValue("--green-500"),
+      documentStyle.getPropertyValue("--blue-500"),
+      documentStyle.getPropertyValue("--yellow-500"),
+      documentStyle.getPropertyValue("--purple-500"),
+      documentStyle.getPropertyValue("--orange-500"),
+    ];
 
-    const data = {
-      labels: [0, 0.15, 1, 7, 14, 30, 60, 200, 365],
-      datasets: [
-        {
-          label: bitcoin.name,
-          data: calculatePercentageChange(
-            bitcoin.marketData?.pricing,
-            userBitcoin.owned
-          ),
-          fill: false,
-          tension: 0.4,
-          borderColor: documentStyle.getPropertyValue("--green-500"),
-        },
-        {
-          label: ethereum.name,
-          data: calculatePercentageChange(
-            ethereum.marketData?.pricing,
-            userEthereum.owned
-          ),
-          fill: false,
-          borderDash: [2, 5],
-          tension: 0.4,
-          borderColor: documentStyle.getPropertyValue("--blue-500"),
-        },
-        {
-          label: dogecoin.name,
-          data: calculatePercentageChange(
-            dogecoin.marketData?.pricing,
-            userDogecoin.owned
-          ),
-          fill: false,
-          tension: 0.4,
-          borderColor: documentStyle.getPropertyValue("--yellow-500"),
-        },
-      ],
-    };
+    const labels = [0.001, 0.15, 1, 7, 14, 30, 60, 200, 365];
 
-    const options = {
+    const datasets = userFavoritesData.map((marketCoin, index) => {
+      const yValues = calculateLineChartData(
+        marketCoin?.marketData?.pricing,
+        marketCoin?.userOwned
+      );
+
+
+      const data = labels.map((x, i) => ({
+        x,
+        y: yValues[i] || 0,
+      }));
+
+      return {
+        label: marketCoin?.name,
+        data,
+        fill: true,
+        tension: 0.4,
+        backgroundColor: colorPalette[index % colorPalette.length],
+        borderColor: colorPalette[index % colorPalette.length],
+        stack: "stack1",
+      };
+    });
+
+    setChartData({ labels, datasets });
+
+    setChartOptions({
       maintainAspectRatio: false,
-      aspectRatio: 1,
       responsive: true,
+      aspectRatio: 1,
       plugins: {
         legend: {},
+        title: {
+          display: true,
+          text: 'Stacked Line Chart',
+        },
+        tooltip: {
+          mode: 'index',
+          intersect: false,
+          callbacks: {
+            footer: (tooltipItems) => {
+              const total = tooltipItems.reduce((sum, item) => sum + item.parsed.y, 0);
+              return `Total: ${total.toLocaleString(undefined, { maximumFractionDigits: 2 })}`;
+            }
+          }
+        }
       },
+      interaction: {
+        mode: 'index',
+        intersect: false,
+      },
+      stacked: false,
       scales: {
         x: {
-          afterTickToLabelConversion: (ctx) => {
-            ctx.ticks = [];
-            ctx.ticks.push({ value: 0, label: "Current" });
-            ctx.ticks.push({ value: 0.15, label: "1h" });
-            ctx.ticks.push({ value: 1, label: "24h" });
-            ctx.ticks.push({ value: 7, label: "7 Days" });
-            ctx.ticks.push({ value: 14, label: "14 Days" });
-            ctx.ticks.push({ value: 30, label: "30 Days" });
-            ctx.ticks.push({ value: 60, label: "60 Days" });
-            ctx.ticks.push({ value: 200, label: "200 Days" });
-            ctx.ticks.push({ value: 365, label: "1 year" });
-          },
+          type: 'logarithmic',
           reverse: true,
-          type: "logarithmic",
+          stacked: false,
+          min: 0.001,
+          max: 365,
+          ticks: {
+            autoSkip: false,
+            maxRotation: 60,
+            minRotation: 20,
+            stepSize: 1,
+            callback: function (value) {
+              const labelMap = {
+                0.001: 'Current',
+                0.15: '1h',
+                1: '24h',
+                7: '7 Days',
+                14: '14 Days',
+                30: '30 Days',
+                60: '60 Days',
+                200: '200 Days',
+                365: '1 Year',
+              };
+              return labelMap[value] || '';
+            }
+          }
         },
-        y: {},
-      },
-    };
+        y: {
 
-    setChartData(data);
-    setChartOptions(options);
 
-    // ✅ Proper cleanup
-    return () => {
-      if (
-        chartRef.current?.chart &&
-        typeof chartRef.current.chart.destroy === "function"
-      ) {
-        chartRef.current.chart.destroy();
+          stacked: false
+        }
       }
-    };
-  }, [data, userCoins]);
+    });
+  }, [data, userFavoritesData]);
 
   if (!chartData || !chartOptions) return null;
 

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Chart } from "primereact/chart";
 import { useCoinStore } from "../../stores/useCoinStore.jsx";
-import { calculatePercentageChange } from "../../assets/common/utils.jsx";
+import { calculateLineChartData } from "../../assets/common/utils.jsx";
 
 export default function CompoundLineChart() {
   const [chartData, setChartData] = useState(null);
@@ -9,11 +9,7 @@ export default function CompoundLineChart() {
   const { data, userFavoritesData } = useCoinStore();
 
   useEffect(() => {
-
-    console.log("data", data);
-    console.log("userFavoritesData", userFavoritesData);
-
-    if (!data || data.length === 0 || !userFavoritesData || userFavoritesData.length === 0) return;
+    if (!userFavoritesData || userFavoritesData.length === 0) return;
 
     const documentStyle = getComputedStyle(document.documentElement);
     const colorPalette = [
@@ -24,29 +20,30 @@ export default function CompoundLineChart() {
       documentStyle.getPropertyValue("--orange-500"),
     ];
 
-    const labels = [0, 0.15, 1, 7, 14, 30, 60, 200, 365];
+    const labels = [0.001, 0.15, 1, 7, 14, 30, 60, 200, 365];
 
-    const datasets = userFavoritesData
-      .map((marketCoin, index) => {
-        const percentageChangeData = calculatePercentageChange(
-          marketCoin?.marketData?.pricing
-        );
-
-
-
-        return {
-          key: marketCoin?.name + index,
-          label: marketCoin?.name,
-          data: percentageChangeData,
-          fill: true,
-          tension: 0.4,
-          backgroundColor: colorPalette[index % colorPalette.length],
-          borderColor: colorPalette[index % colorPalette.length],
-        };
-      })
-      .filter(Boolean);
+    const datasets = userFavoritesData.map((marketCoin, index) => {
+      const yValues = calculateLineChartData(
+        marketCoin?.marketData?.pricing,
+        marketCoin?.userOwned
+      );
 
 
+      const data = labels.map((x, i) => ({
+        x,
+        y: yValues[i] || 0,
+      }));
+
+      return {
+        label: marketCoin?.name,
+        data,
+        fill: true,
+        tension: 0.4,
+        backgroundColor: colorPalette[index % colorPalette.length],
+        borderColor: colorPalette[index % colorPalette.length],
+        stack: "stack1",
+      };
+    });
 
     setChartData({ labels, datasets });
 
@@ -56,30 +53,60 @@ export default function CompoundLineChart() {
       aspectRatio: 1,
       plugins: {
         legend: {},
+        title: {
+          display: true,
+          text: 'Stacked Line Chart',
+        },
+        tooltip: {
+          mode: 'index',
+          intersect: false,
+          callbacks: {
+            footer: (tooltipItems) => {
+              const total = tooltipItems.reduce((sum, item) => sum + item.parsed.y, 0);
+              return `Total: ${total.toLocaleString(undefined, { maximumFractionDigits: 2 })}`;
+            }
+          }
+        }
       },
+      interaction: {
+        mode: 'index',
+        intersect: false,
+      },
+      stacked: true,
       scales: {
         x: {
-          type: "logarithmic",
+          type: 'logarithmic',
           reverse: true,
+          stacked: true,
+          min: 0.001,
+          max: 365,
           ticks: {
-            callback: (value) => {
+            autoSkip: false,
+            maxRotation: 60,
+            minRotation: 20,
+            stepSize: 1,
+            callback: function (value) {
               const labelMap = {
-                0: "Current",
-                0.15: "1h",
-                1: "24h",
-                7: "7 Days",
-                14: "14 Days",
-                30: "30 Days",
-                60: "60 Days",
-                200: "200 Days",
-                365: "1 Year",
+                0.001: 'Current',
+                0.15: '1h',
+                1: '24h',
+                7: '7 Days',
+                14: '14 Days',
+                30: '30 Days',
+                60: '60 Days',
+                200: '200 Days',
+                365: '1 Year',
               };
-              return labelMap[value] || value;
-            },
-          },
+              return labelMap[value] || '';
+            }
+          }
         },
-        y: {},
-      },
+        y: {
+
+
+          stacked: true
+        }
+      }
     });
   }, [data, userFavoritesData]);
 

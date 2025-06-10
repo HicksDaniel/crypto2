@@ -3,13 +3,14 @@ import { SelectButton } from "primereact/selectbutton";
 import { useCoinStore } from "../../../stores/useCoinStore.jsx";
 
 export default function ChartSelector() {
-  const { chartButtonList, updateVisibleCharts, chartList, updateChartList } = useCoinStore();
+  const { chartButtonList, updateVisibleCharts, chartList, updateChartList, fetchUserFavorites } = useCoinStore();
   const [value, setValue] = useState(chartList);
 
   const items = [...chartButtonList];
 
   const handleChange = (selectedValues) => {
     setValue(selectedValues);
+    fetchUserFavorites();
     updateChartList(selectedValues);
 
     const res = selectedValues.map((id) =>

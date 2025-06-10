@@ -22,7 +22,19 @@ startDate.setDate(startDate.getDate() - 1);
 
 const endDate = new Date();
 
-const userFavoritesArray = ["bitcoin", "ethereum", "dogecoin"];
+const userFavoritesArray = [
+  {
+    name: "bitcoin",
+    owned: 1,
+  },
+  {
+    name: "ethereum",
+    owned: 20,
+  },
+  { name: "dogecoin", owned: 380000 },
+];
+
+
 
 export const useCoinStore = create((set, get) => ({
   data: DEFAULT_DATA_STATE,
@@ -47,6 +59,7 @@ export const useCoinStore = create((set, get) => ({
   visibleCharts: [],
   coinList: [],
   timeline: "1",
+
   localCurrency: "usd",
   selectedDataKey: "prices",
 
@@ -241,7 +254,7 @@ export const useCoinStore = create((set, get) => ({
 
     if (!Array.isArray(userFavorites) || userFavorites.length === 0) {
       console.warn("Users Favorite Coins Not Found", userFavorites);
-      set({ error: "Unable To Locate User Favorites", loading: false });
+      set({ userFavorites, error: "Unable To Locate User Favorites", loading: false });
       return;
     }
 
@@ -249,7 +262,7 @@ export const useCoinStore = create((set, get) => ({
 
     try {
       const promiseArray = userFavorites.map((coin) => {
-        return fetchCoinData(coin);
+        return fetchCoinData(coin.name, coin.owned);
       });
 
       const results = await Promise.allSettled(promiseArray);

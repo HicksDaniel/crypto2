@@ -12,18 +12,19 @@ export default function Dashboard() {
     visibleCharts,
   } = useCoinStore();
 
-  const whatCharts = visibleCharts
+
 
   useEffect(() => {
+
     fetchUserFavorites();
-  }, []);
+  }, [visibleCharts]);
 
   if (loading) return <p>Loading...</p>;
   if (error) return <p>Error: {error}</p>;
 
   return (
     <div className="flex flex-row justify-content-center flex-wrap row-gap-3 pt-5">
-      {whatCharts.map((chart) => (
+      {visibleCharts.map((chart) => (
         <BasicCard
           key={chart.value}
           maxWidth={chart.size.maxWidth}

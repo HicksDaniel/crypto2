@@ -6,6 +6,8 @@ import DefinedDataTable from "../../components/datacharts/trendingData/TrendingD
 import TopGainersLosersDataTable from "../../components/datacharts/trendingData/TopGainersLosersDataTable";
 import HistoricalDataTable from "../../components/datacharts/historicalData/HistoricalDataTable";
 
+
+
 export const structuredCoinData = async (coinData) => {
   return new Promise((resolve) => {
     const processedData = {
@@ -186,6 +188,7 @@ export const DisplayCharts = [
 ];
 
 export const calculatePercentageChange = (coinData, userData = 1) => {
+  console.log("test")
   if (!coinData) return [];
 
   const userCoinValue = [
@@ -196,6 +199,28 @@ export const calculatePercentageChange = (coinData, userData = 1) => {
     { label: "30d", value: "30", changeValue: coinData?.pcp_30day },
     { label: "1y", value: "365", changeValue: coinData?.pcp_1year },
   ];
+
+  return userCoinValue;
+};
+export const calculateLineChartData = (coinData, userOwned) => {
+  console.log("coinData", coinData, userOwned)
+  console.log("userOwned", userOwned)
+
+  const currentPrice = coinData?.currentPriceUSD;
+
+  const userCoinValue = [
+    userOwned * currentPrice,
+    (userOwned * currentPrice) / (1 + coinData?.pcp_1h / 100),
+    (userOwned * currentPrice) / (1 + coinData?.pcp_24h / 100),
+    (userOwned * currentPrice) / (1 + coinData?.pcp_7day / 100),
+    (userOwned * currentPrice) / (1 + coinData?.pcp_14day / 100),
+    (userOwned * currentPrice) / (1 + coinData?.pcp_30day / 100),
+    (userOwned * currentPrice) / (1 + coinData?.pcp_60day / 100),
+    (userOwned * currentPrice) / (1 + coinData?.pcp_200day / 100),
+    (userOwned * currentPrice) / (1 + coinData?.pcp_1year / 100),
+  ];
+
+  console.log(userCoinValue)
 
   return userCoinValue;
 };
@@ -312,7 +337,7 @@ export const fetchHistoryCoinData = async (coinId, date) => {
   }
 };
 
-export const fetchCoinData = async (coinName) => {
+export const fetchCoinData = async (coinName, userOwned) => {
   if (!coinName) {
     console.warn("fetchCoinData called with invalid coinName.");
     return null;
@@ -330,7 +355,7 @@ export const fetchCoinData = async (coinName) => {
       );
     const data = await res.json();
     const finalData = await structuredCoinData(data)
-    return finalData || {};
+    return { ...finalData, userOwned } || {};
   } catch (error) {
     console.error("Error in fetchCoinData:", error);
     throw error;

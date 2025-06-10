@@ -1,28 +1,23 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { SelectButton } from "primereact/selectbutton";
 import { useCoinStore } from "../../../stores/useCoinStore.jsx";
-import DoughnutChart from "../../datacharts/doughnutchart";
 
 export default function ChartSelector() {
-  const { chartButtonList, updateVisibleCharts, chartList, updateChartList } =
-    useCoinStore();
-  const [value, setValue] = useState(null);
+  const { chartButtonList, updateVisibleCharts, chartList, updateChartList } = useCoinStore();
+  const [value, setValue] = useState(chartList);
+
   const items = [...chartButtonList];
 
-  useEffect(() => {
-    if (chartList === null) return;
-    const res = chartList.map((id) =>
+  const handleChange = (selectedValues) => {
+    setValue(selectedValues);
+    updateChartList(selectedValues);
+
+    const res = selectedValues.map((id) =>
       chartButtonList.find((item) => item.value === id)
     );
 
-    setValue(chartList);
     updateVisibleCharts(res);
-  }, [value]);
-
-  async function handleChange(data) {
-    const value = await updateChartList(data);
-    setValue(value);
-  }
+  };
 
   return (
     <div className="card flex justify-content-center">

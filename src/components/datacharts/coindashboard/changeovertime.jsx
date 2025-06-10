@@ -8,6 +8,8 @@ export function ChangeOverTime() {
 
   const currentData = calculatePercentageChange(data?.marketData?.pricing);
 
+  console.log("data", data)
+
   const handleClick = (value) => {
     if (value === timeline) return;
     updateTimeLine(value);
@@ -16,11 +18,10 @@ export function ChangeOverTime() {
 
   useEffect(() => {
     const InitializeCOT = async () => {
-      const coin = searchCoin;
-      fetchData(coin);
+      fetchSingleCoinData(searchCoin);
     };
     InitializeCOT();
-  }, [fetchData, searchCoin]);
+  }, [searchCoin]);
 
   return (
     <div className="flex border-1  justify-content-around align-items-end overflow-hidden border-round-3xl h-8rem w-11">

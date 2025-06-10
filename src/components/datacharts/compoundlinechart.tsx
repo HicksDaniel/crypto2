@@ -4,13 +4,17 @@ import { useCoinStore } from "../../stores/useCoinStore.jsx";
 import { calculatePercentageChange } from "../../assets/common/utils.jsx";
 
 export default function CompoundLineChart() {
-  const [chartData, setChartData] = useState({});
-  const [chartOptions, setChartOptions] = useState({});
-  const { data, userCoins } = useCoinStore();
-
-  const userFavoritesArray = ["bitcoin", "ethereum", "dogecoin"];
+  const [chartData, setChartData] = useState(null);
+  const [chartOptions, setChartOptions] = useState(null);
+  const { data, userFavoritesData } = useCoinStore();
 
   useEffect(() => {
+
+    console.log("data", data);
+    console.log("userFavoritesData", userFavoritesData);
+
+    if (!data || data.length === 0 || !userFavoritesData || userFavoritesData.length === 0) return;
+
     const documentStyle = getComputedStyle(document.documentElement);
     const colorPalette = [
       documentStyle.getPropertyValue("--green-500"),
@@ -22,70 +26,70 @@ export default function CompoundLineChart() {
 
     const labels = [0, 0.15, 1, 7, 14, 30, 60, 200, 365];
 
-    let cumulativeData = new Array(labels.length).fill(0);
-
-    const datasets = userFavoritesArray
-      .map((favoriteName, index) => {
-        const marketCoin = data.find(
-          (coin) => coin.name.toLowerCase() === favoriteName
-        );
-        const userCoin = userCoins.find(
-          (coin) => coin.name.toLowerCase() === favoriteName
-        );
-
-        if (!marketCoin || !userCoin) return null;
-
+    const datasets = userFavoritesData
+      .map((marketCoin, index) => {
         const percentageChangeData = calculatePercentageChange(
-          marketCoin.marketData?.pricing,
-          userCoin.owned
+          marketCoin?.marketData?.pricing
         );
 
-        cumulativeData = cumulativeData.map(
-          (val, i) => val + percentageChangeData[i]
-        );
+
 
         return {
-          label: marketCoin.name,
-          data: [...cumulativeData],
+          key: marketCoin?.name + index,
+          label: marketCoin?.name,
+          data: percentageChangeData,
           fill: true,
           tension: 0.4,
           backgroundColor: colorPalette[index % colorPalette.length],
+          borderColor: colorPalette[index % colorPalette.length],
         };
       })
-      .filter(Boolean); // remove nulls
+      .filter(Boolean);
 
-    setChartData({
-      labels,
-      datasets,
-    });
+
+
+    setChartData({ labels, datasets });
 
     setChartOptions({
       maintainAspectRatio: false,
+      responsive: true,
       aspectRatio: 1,
       plugins: {
         legend: {},
       },
       scales: {
         x: {
-          afterTickToLabelConversion: (ctx) => {
-            ctx.ticks = [];
-            ctx.ticks.push({ value: 0, label: "Current" });
-            ctx.ticks.push({ value: 0.15, label: "1h" });
-            ctx.ticks.push({ value: 1, label: "24h" });
-            ctx.ticks.push({ value: 7, label: "7 Days" });
-            ctx.ticks.push({ value: 14, label: "14 Days" });
-            ctx.ticks.push({ value: 30, label: "30 Days" });
-            ctx.ticks.push({ value: 60, label: "60 Days" });
-            ctx.ticks.push({ value: 200, label: "200 Days" });
-            ctx.ticks.push({ value: 365, label: "1 year" });
-          },
-          reverse: true,
           type: "logarithmic",
+          reverse: true,
+          ticks: {
+            callback: (value) => {
+              const labelMap = {
+                0: "Current",
+                0.15: "1h",
+                1: "24h",
+                7: "7 Days",
+                14: "14 Days",
+                30: "30 Days",
+                60: "60 Days",
+                200: "200 Days",
+                365: "1 Year",
+              };
+              return labelMap[value] || value;
+            },
+          },
         },
         y: {},
       },
     });
-  }, [data, userCoins]);
+  }, [data, userFavoritesData]);
+
+  if (!chartData || !chartOptions) {
+    return (
+      <div style={{ display: "flex", height: "20rem", justifyContent: "center", alignItems: "center" }}>
+        <p>Loading chart...</p>
+      </div>
+    );
+  }
 
   return (
     <Chart

@@ -2,13 +2,15 @@ import DoughnutChart from "../../components/datacharts/doughnutchart";
 import StyledLineChart from "../../components/datacharts/styledlinechart";
 import CompoundLineChart from "../../components/datacharts/compoundlinechart";
 import { format } from "date-fns";
+import DefinedDataTable from "../../components/datacharts/trendingData/TrendingDataTable";
+import TopGainersLosersDataTable from "../../components/datacharts/trendingData/TopGainersLosersDataTable";
+import HistoricalDataTable from "../../components/datacharts/historicalData/HistoricalDataTable";
 
 export const structuredCoinData = async (coinData) => {
-  console.log(coinData);
   return new Promise((resolve) => {
     const processedData = {
       name: coinData?.name || null,
-      image: coinData?.image.small || null,
+      image: coinData?.image?.small || null,
       marketCapRank: coinData?.market_cap_rank || null,
       symbol: coinData?.symbol || null,
       last_updated: coinData?.last_updated || null,
@@ -148,6 +150,41 @@ export const timeChangeButtons = [
   },
 ];
 
+export const DisplayCharts = [
+  {
+    name: "Trending Coins",
+    value: "trending",
+    url: "search/trending",
+    component: DefinedDataTable,
+  },
+  {
+    name: "Top Coins",
+    value: "topcoins",
+    url: "coins/markets?vs_currency=usd&order=market_cap_desc&per_page=100&page=1&marketcap_rank=24h",
+    component: TopGainersLosersDataTable,
+    props: { tablespec: "topcoins" },
+  },
+  {
+    name: "Top Gainers",
+    value: "gainers",
+    url: "coins/markets?vs_currency=usd&order=market_cap_desc&per_page=500&page=1&price_change_percentage=24h",
+    component: TopGainersLosersDataTable,
+    props: { tablespec: "topgainers" },
+  },
+  {
+    name: "Top Losers",
+    value: "losers",
+    url: "coins/markets?vs_currency=usd&order=market_cap_desc&per_page=100&page=1&price_change_percentage=24h",
+    component: TopGainersLosersDataTable,
+    props: { tablespec: "toplosers" },
+  },
+  {
+    name: "Historical Lookup",
+    value: "historical",
+    component: HistoricalDataTable,
+  },
+];
+
 export const calculatePercentageChange = (coinData, userData = 1) => {
   if (!coinData) return [];
 
@@ -170,17 +207,6 @@ export const FETCH_HEADER = {
   "x-cg-demo-api-key": "CG-c7WmWDGxgBsFBma9zh72TkTC",
 };
 
-export const MOCK_USER_COINS = [
-  {
-    name: "bitcoin",
-    owned: 1,
-  },
-  {
-    name: "ethereum",
-    owned: 20,
-  },
-  { name: "dogecoin", owned: 380000 },
-];
 
 export const DEFAULT_COIN = "bitcoin";
 
@@ -188,7 +214,7 @@ export const DEFAULT_CHART_LIST = [
   {
     name: "Compound Line",
     value: 1,
-    comp: <CompoundLineChart />,
+    comp: CompoundLineChart,
     size: {
       maxWidth: "48rem",
       minWidth: "24rem",
@@ -198,7 +224,7 @@ export const DEFAULT_CHART_LIST = [
   {
     name: "Doughnut",
     value: 2,
-    comp: <DoughnutChart />,
+    comp: DoughnutChart,
     size: {
       maxWidth: "24rem",
       minWidth: "24rem",
@@ -208,7 +234,7 @@ export const DEFAULT_CHART_LIST = [
   {
     name: "Styled Line",
     value: 3,
-    comp: <StyledLineChart />,
+    comp: StyledLineChart,
     size: {
       maxWidth: "48rem",
       minWidth: "24rem",
@@ -218,7 +244,7 @@ export const DEFAULT_CHART_LIST = [
   {
     name: "Compound Line",
     value: 4,
-    comp: <CompoundLineChart />,
+    comp: CompoundLineChart,
     size: {
       maxWidth: "48rem",
       minWidth: "24rem",
@@ -229,7 +255,7 @@ export const DEFAULT_CHART_LIST = [
   {
     name: "Doughnut",
     value: 5,
-    comp: <DoughnutChart />,
+    comp: DoughnutChart,
     size: {
       maxWidth: "24rem",
       minWidth: "24rem",
@@ -239,7 +265,7 @@ export const DEFAULT_CHART_LIST = [
   {
     name: "Styled Line",
     value: 6,
-    comp: <StyledLineChart />,
+    comp: StyledLineChart,
     size: {
       maxWidth: "48rem",
       minWidth: "24rem",
@@ -287,7 +313,6 @@ export const fetchHistoryCoinData = async (coinId, date) => {
 };
 
 export const fetchCoinData = async (coinName) => {
-  console.log("fetchCoinData", coinName);
   if (!coinName) {
     console.warn("fetchCoinData called with invalid coinName.");
     return null;
@@ -304,7 +329,8 @@ export const fetchCoinData = async (coinName) => {
         `Failed to fetch coin data: ${res.status} ${res.statusText}`
       );
     const data = await res.json();
-    return data || {};
+    const finalData = await structuredCoinData(data)
+    return finalData || {};
   } catch (error) {
     console.error("Error in fetchCoinData:", error);
     throw error;

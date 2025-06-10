@@ -6,7 +6,7 @@ import {
   DEFAULT_COIN,
   DEFAULT_CHART_LIST,
   DEFAULT_DATA_STATE,
-  MOCK_USER_COINS,
+
   mapTrendingData,
   mapGainersLosersData,
   mapHistoricalData,
@@ -14,7 +14,7 @@ import {
   FETCH_HEADER,
   fetchHistoryCoinData,
   fetchCoinData,
-  structuredCoinData,
+
 } from "../assets/common/utils";
 
 const startDate = new Date();
@@ -22,9 +22,13 @@ startDate.setDate(startDate.getDate() - 1);
 
 const endDate = new Date();
 
+const userFavoritesArray = ["bitcoin", "ethereum", "dogecoin"];
+
 export const useCoinStore = create((set, get) => ({
   data: DEFAULT_DATA_STATE,
   searchCoin: DEFAULT_COIN,
+  userFavorites: userFavoritesArray,
+  userFavoritesData: [],
   selectedDates: [startDate, endDate],
   topGainersData: [],
   topLosersData: [],
@@ -36,7 +40,6 @@ export const useCoinStore = create((set, get) => ({
   formattedDefinedData: [],
   rawHistoricalData: [],
   formattedHistoricalData: [],
-  userCoins: MOCK_USER_COINS,
   loading: false,
   error: null,
   chartButtonList: DEFAULT_CHART_LIST,
@@ -123,20 +126,27 @@ export const useCoinStore = create((set, get) => ({
     }
   },
   fetchSingleCoinData: async () => {
+
     const { searchCoin, timeline } = get();
 
     set({ loading: true });
     try {
-      const response = await fetch(
+      const res1 = await fetch(
         `${BASE_URL}/coins/${searchCoin}/market_chart?vs_currency=usd&days=${timeline}`,
         {
           method: "GET",
           headers: FETCH_HEADER,
-        }
+        },
       );
-      const data = await response.json();
+      const res2 = fetchCoinData(searchCoin);
 
-      set({ singleCoinData: data, loading: false });
+      const data1 = await res1.json();
+      const data2 = await res2;
+
+
+
+
+      set({ data: data2, singleCoinData: data1, loading: false });
     } catch (error) {
       set({ loading: false, error: "Failed to fetch data" });
       console.error("Error fetching 24h data:", error);
@@ -226,24 +236,36 @@ export const useCoinStore = create((set, get) => ({
     }
   },
 
-  fetchData: async (coin) => {
-    if (!coin || typeof coin !== "string" || !coin.trim()) {
-      console.warn("Invalid coin parameter:", coin);
-      set({ error: "Invalid coin parameter", loading: false });
+  fetchUserFavorites: async () => {
+    const { userFavorites } = get();
+
+    if (!Array.isArray(userFavorites) || userFavorites.length === 0) {
+      console.warn("Users Favorite Coins Not Found", userFavorites);
+      set({ error: "Unable To Locate User Favorites", loading: false });
       return;
     }
 
     set({ loading: true, error: null });
 
     try {
-      const coinData = await fetchCoinData(coin);
-      if (!coinData) {
-        throw new Error("No data returned from fetchCoinData");
+      const promiseArray = userFavorites.map((coin) => {
+        return fetchCoinData(coin);
+      });
+
+      const results = await Promise.allSettled(promiseArray);
+
+      const fulfilled = results
+        .filter((r) => r.status === "fulfilled")
+        .map((r) => r.value);
+
+      if (fulfilled.length === 0) {
+        throw new Error("All coin data fetches failed.");
       }
-      console.log("coinData", coinData);
-      const formattedData = await structuredCoinData(coinData);
-      set({ data: formattedData, loading: false });
+
+      set({ userFavoritesData: fulfilled, loading: false });
+
     } catch (error) {
+      console.error("Error fetching user favorites:", error);
       set({ error: error.message, loading: false });
     }
   },

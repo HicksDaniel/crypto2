@@ -1,10 +1,8 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Dropdown } from "primereact/dropdown";
-import DefinedDataTable from "../components/datacharts/trendingData/TrendingDataTable";
-import TopGainersLosersDataTable from "../components/datacharts/trendingData/TopGainersLosersDataTable";
-import HistoricalDataTable from "../components/datacharts/historicalData/HistoricalDataTable";
 import { useCoinStore } from "../stores/useCoinStore";
 import { Skeleton } from "primereact/skeleton";
+import { DisplayCharts } from "../assets/common/utils";
 
 export default function Home() {
   const [selectedChart, setSelectedChart] = useState(null);
@@ -15,47 +13,18 @@ export default function Home() {
     loading,
   } = useCoinStore();
 
-  const charts = [
-    {
-      name: "Trending Coins",
-      value: "trending",
-      url: "search/trending",
-      comp: <DefinedDataTable />,
-    },
-    {
-      name: "Top Coins",
-      value: "topcoins",
-      url: "coins/markets?vs_currency=usd&order=market_cap_desc&per_page=100&page=1&marketcap_rank=24h",
-      comp: <TopGainersLosersDataTable tablespec="topcoins" />,
-    },
-    {
-      name: "Top Gainers",
-      value: "gainers",
-      url: "coins/markets?vs_currency=usd&order=market_cap_desc&per_page=500&page=1&price_change_percentage=24h",
-      comp: <TopGainersLosersDataTable tablespec="topgainers" />,
-    },
-    {
-      name: "Top Losers",
-      value: "losers",
-      url: "coins/markets?vs_currency=usd&order=market_cap_desc&per_page=100&page=1&price_change_percentage=24h",
-      comp: <TopGainersLosersDataTable tablespec="toplosers" />,
-    },
-    { name: "Most Viewed", value: "most_viewed", comp: <div>Coming Soon</div> },
-    {
-      name: "Price Change since ATH",
-      value: "price_change_ath",
-      comp: <div>Coming Soon</div>,
-    },
-    {
-      name: "Historical Lookup",
-      value: "historical",
-      comp: <HistoricalDataTable />,
-    },
-  ];
+  useEffect(() => {
+    if (!selectedChart && DisplayCharts.length > 0) {
+      handleSelection(DisplayCharts[0].value);
+    }
+  }, []);
+
 
   const handleSelection = (value) => {
-    const selected = charts.find((c) => c.value === value);
+    const selected = DisplayCharts.find((c) => c.value === value);
     if (!selected) return;
+
+ 
 
     setSelectedChart(selected);
 
@@ -79,40 +48,31 @@ export default function Home() {
     }
   };
 
-  if (loading) {
-    return (
-      <>
-        <Dropdown
-          value={selectedChart?.value}
-          onChange={(e) => handleSelection(e.value)}
-          options={charts}
-          optionLabel="name"
-          optionValue="value"
-          placeholder="Select a Chart"
-          className="w-full md:w-14rem"
-        />
-        <div
-          style={{ height: "800px", borderRadius: "20px" }}
-          className="flex w-10 border-rounded-3xl align-items-center"
-        >
-          <Skeleton height="100%" />
-        </div>
-      </>
-    );
-  }
+  const SelectedComponent = selectedChart?.component;
+  const componentProps = selectedChart?.props || {};
 
   return (
     <>
       <Dropdown
         value={selectedChart?.value}
         onChange={(e) => handleSelection(e.value)}
-        options={charts}
+        options={DisplayCharts}
         optionLabel="name"
         optionValue="value"
         placeholder="Select a Chart"
         className="w-full md:w-14rem"
       />
-      {selectedChart?.comp}
+
+      {loading ? (
+        <div
+          style={{ height: "800px", borderRadius: "20px" }}
+          className="flex w-10 border-rounded-3xl align-items-center"
+        >
+          <Skeleton height="100%" />
+        </div>
+      ) : (
+        SelectedComponent && <SelectedComponent {...componentProps} />
+      )}
     </>
   );
 }

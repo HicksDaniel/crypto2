@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { Button } from "primereact/button";
 import { ButtonGroup } from "primereact/buttongroup";
 import { useCoinStore } from "../../../stores/useCoinStore";
@@ -18,16 +18,11 @@ export function ButtonGroupsNav() {
     fetchSingleCoinData,
   } = useCoinStore();
 
-  const handleTimeChange = (value) => {
-    if (value === timeline) return;
-    updateTimeLine(value);
+  const handleStateChange = (currentValue, updaterFn, newValue) => {
+    if (currentValue === newValue) return;
+    updaterFn(newValue);
     fetchSingleCoinData();
-  };
 
-  const handleDataViewChange = (value) => {
-    if (value === selectedDataKey) return;
-    updateDataKey(value);
-    fetchSingleCoinData();
   };
   return (
     <div className="flex w-12 justify-content-center gap-1">
@@ -35,8 +30,8 @@ export function ButtonGroupsNav() {
         {dataViewButtons.map((btn, index) => (
           <Button
             key={btn.label + index}
-            onClick={() => handleDataViewChange(btn.value)}
-            disabled={btn.disabbled}
+            onClick={() => handleStateChange(selectedDataKey, updateDataKey, btn.value)}
+            disabled={btn.disabled}
             style={{
               width: btn.width,
 
@@ -71,7 +66,7 @@ export function ButtonGroupsNav() {
           <Button
             key={btn.value}
             disabled={btn.disabled}
-            onClick={() => handleTimeChange(btn.value)}
+            onClick={() => handleStateChange(timeline, updateTimeLine, btn.value)}
             style={{
               width: btn.width,
               ...commonButtonStyles,

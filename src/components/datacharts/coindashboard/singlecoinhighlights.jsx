@@ -9,7 +9,7 @@ import { Panel } from "primereact/panel";
 import { Divider } from "primereact/divider";
 
 export function SingleCoinHighLights() {
-  const { data, fetchData, searchCoin, timeline, updateTimeLine, loading } =
+  const { data, singleCoinData, fetchData, searchCoin, timeline, updateTimeLine, loading } =
     useCoinStore();
 
   const name = data?.name;
@@ -24,20 +24,8 @@ export function SingleCoinHighLights() {
   const totalSupply = data?.totalSupply;
   const maxSupply = data?.maxSupply;
 
-  const [showSkeleton, setShowSkeleton] = useState(false);
 
-  useEffect(() => {
-    let timeout;
 
-    if (loading || showSkeleton) {
-      setShowSkeleton(true);
-      timeout = setTimeout(() => {
-        setShowSkeleton(false);
-      }, 350);
-    }
-
-    return () => clearTimeout(timeout);
-  }, [loading]);
 
   const formatLargeNumbers = (value) => {
     if (typeof value !== "number" || isNaN(value)) return "—";
@@ -74,37 +62,37 @@ export function SingleCoinHighLights() {
     );
   };
 
-  if (loading || showSkeleton) {
-    return (
-      <div>
-        <div className="flex align-items-center p-0 gap-2 h-2rem">
-          <Skeleton height="90%" width="8%" />
-          <Skeleton height="90%" width="18%" />
-          <Skeleton height="90%" width="18%" />
-          <Skeleton height="90%" width="5%" />
-        </div>
-        <div className="flex gap-2 align-items-center text-4xl h-3rem">
-          <Skeleton height="90%" width="60%" />
-          <Skeleton height="40%" width="10%" />
-        </div>
-        <div className="flex h-2rem align-items-center gap-2">
-          {" "}
-          <Skeleton height="60%" width="20%" />
-          <Skeleton height="60%" width="10%" />
-        </div>
-        <div className="p-2 h-3rem">
-          <div>
-            <Skeleton />
-          </div>
-          <div className="flex">
-            <Skeleton />
-            <Skeleton />
-            <Skeleton />
-          </div>
-        </div>
-      </div>
-    );
-  }
+  // if (loading) {
+  //   return (
+  //     <div>
+  //       <div className="flex align-items-center p-0 gap-2 h-2rem">
+  //         <Skeleton height="90%" width="8%" />
+  //         <Skeleton height="90%" width="18%" />
+  //         <Skeleton height="90%" width="18%" />
+  //         <Skeleton height="90%" width="5%" />
+  //       </div>
+  //       <div className="flex gap-2 align-items-center text-4xl h-3rem">
+  //         <Skeleton height="90%" width="60%" />
+  //         <Skeleton height="40%" width="10%" />
+  //       </div>
+  //       <div className="flex h-2rem align-items-center gap-2">
+  //         {" "}
+  //         <Skeleton height="60%" width="20%" />
+  //         <Skeleton height="60%" width="10%" />
+  //       </div>
+  //       <div className="p-2 h-3rem">
+  //         <div>
+  //           <Skeleton />
+  //         </div>
+  //         <div className="flex">
+  //           <Skeleton />
+  //           <Skeleton />
+  //           <Skeleton />
+  //         </div>
+  //       </div>
+  //     </div>
+  //   );
+  // }
 
   return (
     <>

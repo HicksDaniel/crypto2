@@ -16,6 +16,7 @@ export default function MenuSideBar({ width }) {
     };
     return updatedStyles;
   };
+
   let timeoutId;
 
   function handleSideDrawers(value, string) {

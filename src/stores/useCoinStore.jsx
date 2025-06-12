@@ -52,7 +52,7 @@ export const useCoinStore = create((set, get) => ({
   localCurrency: "usd",
   selectedDataKey: "prices",
 
-  updateThemeColors: (value1, value2) => {
+  updateThemeColorsForCharts: (value1, value2) => {
     set({ themeColors: value1, chartColors: value2 })
   },
 

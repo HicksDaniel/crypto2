@@ -2,18 +2,8 @@ import React, { useState, useEffect } from "react";
 import { Chart } from "primereact/chart";
 import { useCoinStore } from "../../stores/useCoinStore.jsx";
 import { calculateLineChartData } from "../../assets/common/utils.jsx";
+import { Skeleton } from "primereact/skeleton";
 
-// Helper to convert hex to rgba
-function hexToRgba(hex, alpha = 1) {
-  let parsedHex = hex.replace("#", "").trim();
-  if (parsedHex.length === 3) {
-    parsedHex = parsedHex.split("").map(c => c + c).join("");
-  }
-  const r = parseInt(parsedHex.substring(0, 2), 16);
-  const g = parseInt(parsedHex.substring(2, 4), 16);
-  const b = parseInt(parsedHex.substring(4, 6), 16);
-  return `rgba(${r}, ${g}, ${b}, ${alpha})`;
-}
 
 export default function CompoundLineChart() {
   const [chartData, setChartData] = useState(null);
@@ -25,9 +15,6 @@ export default function CompoundLineChart() {
 
 
     const colorPalette = Object.values(chartColors);
-
-
-
     const labels = [0.001, 0.15, 1, 7, 14, 30, 60, 200, 365];
 
     const datasets = userFavoritesData.map((marketCoin, index) => {
@@ -42,7 +29,6 @@ export default function CompoundLineChart() {
       }));
 
       const baseColor = colorPalette[index % colorPalette.length];
-
 
       return {
         label: marketCoin?.name,
@@ -135,9 +121,9 @@ export default function CompoundLineChart() {
 
   if (!chartData || !chartOptions) {
     return (
-      <div style={{ display: "flex", height: "20rem", justifyContent: "center", alignItems: "center" }}>
+      <Skeleton className="flex justify-content-center align-items-center w-12 h-22rem border-round-2xl">
         <p>Loading chart...</p>
-      </div>
+      </Skeleton>
     );
   }
 

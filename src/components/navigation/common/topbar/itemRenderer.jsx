@@ -5,7 +5,6 @@ export const ItemRenderer = ({ item }) => {
   const navigate = useNavigate();
 
   const handleRouting = (toRoute) => {
-    console.log(typeof toRoute);
     navigate(toRoute);
   };
 

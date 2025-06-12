@@ -3,6 +3,7 @@ import { Chart as ChartJS } from 'chart.js';
 import { Chart } from "primereact/chart";
 import { useCoinStore } from "../../stores/useCoinStore.jsx";
 import ChartDataLabels from 'chartjs-plugin-datalabels';
+import { Skeleton } from "primereact/skeleton";
 
 ChartJS.register(ChartDataLabels);
 
@@ -71,9 +72,10 @@ export default function DoughnutChart() {
 
   if (!chartData || !chartOptions) {
     return (
-      <div style={{ display: "flex", height: "20rem", justifyContent: "center", alignItems: "center" }}>
+
+      <Skeleton className="flex justify-content-center align-items-center w-12 h-22rem border-round-2xl">
         <p>Loading chart...</p>
-      </div>
+      </Skeleton>
     );
   }
 

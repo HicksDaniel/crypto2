@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 
-import PriceTimeline from "../components/datacharts/coinDashboard/pricetimeline";
+import PriceTimeline from "../components/datacharts/pricetimeline";
 import { ButtonGroupsNav } from "../components/datacharts/coindashboard/buttonGroupsNav";
 import { ChangeOverTime } from "../components/datacharts/coindashboard/changeovertime";
 import { SingleCoinHighLights } from "../components/datacharts/coindashboard/singleCoinHighLights";

@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from "react";
 import { Chart } from "primereact/chart";
 import { useCoinStore } from "../../stores/useCoinStore.jsx";
 import { calculateLineChartData } from "../../assets/common/utils.jsx";
+import { Skeleton } from "primereact/skeleton";
 
 export default function StyledLineChart() {
   const chartRef = useRef(null);
@@ -15,13 +16,7 @@ export default function StyledLineChart() {
   useEffect(() => {
     if (!userFavoritesData || userFavoritesData.length === 0) return;
 
-    const colorPalette = [
-      chartColors.computedGreen500,
-      chartColors.computedBlue500,
-      chartColors.computedYellow500,
-      chartColors.computedPurple500,
-      chartColors.computedOrange500,
-    ];
+    const colorPalette = Object.values(chartColors);
 
     const labels = [0.001, 0.15, 1, 7, 14, 30, 60, 200, 365];
 
@@ -42,7 +37,7 @@ export default function StyledLineChart() {
         data,
         fill: false,
         tension: 0.4,
-        backgroundColor: colorPalette[index % colorPalette.length],
+
         borderColor: colorPalette[index % colorPalette.length],
         stack: "stack1",
       };
@@ -131,8 +126,15 @@ export default function StyledLineChart() {
     });
   }, [data, userFavoritesData]);
 
-  if (!chartData || !chartOptions) return null;
+  if (!chartData || !chartOptions) {
+    return (
 
+      <Skeleton className="flex justify-content-center align-items-center w-12 h-22rem border-round-2xl">
+        <p>Loading chart...</p>
+      </Skeleton>
+
+    );
+  }
   return (
     <Chart
       ref={chartRef}

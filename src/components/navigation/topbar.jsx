@@ -10,7 +10,7 @@ import { getThemeColors } from "../../assets/common/chartUtils";
 import { useCoinStore } from "../../stores/useCoinStore";
 
 export default function MenuTopBar({ height }) {
-  const { updateThemeColors, themeColors } = useCoinStore();
+  const { updateThemeColorsForCharts, themeColors } = useCoinStore();
   const { changeTheme } = useContext(PrimeReactContext);
   const [isDarkMode, setIsDarkMode] = useState(false);
 
@@ -19,7 +19,7 @@ export default function MenuTopBar({ height }) {
 
     const handleThemeLoad = () => {
       const colors = getThemeColors();
-      updateThemeColors(colors[0], colors[1]);
+      updateThemeColorsForCharts(colors[0], colors[1]);
     };
     if (themeLink) {
       themeLink.addEventListener("load", handleThemeLoad);

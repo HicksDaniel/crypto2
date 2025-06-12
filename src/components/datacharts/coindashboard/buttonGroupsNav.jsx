@@ -14,7 +14,6 @@ export function ButtonGroupsNav() {
     updateTimeLine,
     selectedDataKey,
     updateDataKey,
-    loading,
     fetchSingleCoinData,
   } = useCoinStore();
 

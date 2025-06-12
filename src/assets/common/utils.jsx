@@ -5,6 +5,30 @@ import { format } from "date-fns";
 import DefinedDataTable from "../../components/datacharts/trendingData/TrendingDataTable";
 import TopGainersLosersDataTable from "../../components/datacharts/trendingData/TopGainersLosersDataTable";
 import HistoricalDataTable from "../../components/datacharts/historicalData/HistoricalDataTable";
+import { Skeleton } from "primereact/skeleton";
+
+export const labelMap = {
+  prices: "Price (USD)",
+  market_caps: "Market Cap (USD)",
+  total_volumes: "Total Volume (USD)",
+};
+
+export const priceTimeLineSkeleton = () => (
+  <div className="flex flex-column align-items-center justify-content-center h-full p-0 w-12">
+    <div className="flex align-items-center w-3 h-2rem">
+      <Skeleton height="70%" />
+    </div>
+
+    <div className="flex h-30rem gap-2 w-12">
+      <Skeleton height="100%" width="15%" />
+      <Skeleton height="100%" width="85%" />
+    </div>
+
+    <div className="flex h-3rem m-2 mb-5 w-12">
+      <Skeleton height="100%" width="100%" />
+    </div>
+  </div>
+)
 
 
 export const startDate = new Date();

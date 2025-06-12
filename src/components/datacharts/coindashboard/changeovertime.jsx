@@ -8,8 +8,6 @@ export function ChangeOverTime() {
 
   const currentData = calculatePercentageChange(data?.marketData?.pricing);
 
-  console.log("data", data)
-
   const handleClick = (value) => {
     if (value === timeline) return;
     updateTimeLine(value);

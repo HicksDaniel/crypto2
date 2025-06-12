@@ -3,22 +3,30 @@ import { Chart } from "primereact/chart";
 import { useCoinStore } from "../../stores/useCoinStore.jsx";
 import { calculateLineChartData } from "../../assets/common/utils.jsx";
 
+// Helper to convert hex to rgba
+function hexToRgba(hex, alpha = 1) {
+  let parsedHex = hex.replace("#", "").trim();
+  if (parsedHex.length === 3) {
+    parsedHex = parsedHex.split("").map(c => c + c).join("");
+  }
+  const r = parseInt(parsedHex.substring(0, 2), 16);
+  const g = parseInt(parsedHex.substring(2, 4), 16);
+  const b = parseInt(parsedHex.substring(4, 6), 16);
+  return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+}
+
 export default function CompoundLineChart() {
   const [chartData, setChartData] = useState(null);
   const [chartOptions, setChartOptions] = useState(null);
-  const { data, userFavoritesData } = useCoinStore();
+  const { data, userFavoritesData, themeColors, chartColors } = useCoinStore();
 
   useEffect(() => {
     if (!userFavoritesData || userFavoritesData.length === 0) return;
 
-    const documentStyle = getComputedStyle(document.documentElement);
-    const colorPalette = [
-      documentStyle.getPropertyValue("--green-500"),
-      documentStyle.getPropertyValue("--blue-500"),
-      documentStyle.getPropertyValue("--yellow-500"),
-      documentStyle.getPropertyValue("--purple-500"),
-      documentStyle.getPropertyValue("--orange-500"),
-    ];
+
+    const colorPalette = Object.values(chartColors);
+
+
 
     const labels = [0.001, 0.15, 1, 7, 14, 30, 60, 200, 365];
 
@@ -28,19 +36,21 @@ export default function CompoundLineChart() {
         marketCoin?.userOwned
       );
 
-
       const data = labels.map((x, i) => ({
         x,
         y: yValues[i] || 0,
       }));
 
+      const baseColor = colorPalette[index % colorPalette.length];
+
+
       return {
         label: marketCoin?.name,
         data,
         fill: true,
-        tension: 0.4,
-        backgroundColor: colorPalette[index % colorPalette.length],
-        borderColor: colorPalette[index % colorPalette.length],
+        tension: 0.5,
+        borderColor: baseColor,
+        borderWidth: 2,
         stack: "stack1",
       };
     });
@@ -52,6 +62,9 @@ export default function CompoundLineChart() {
       responsive: true,
       aspectRatio: 1,
       plugins: {
+        datalabels: {
+          display: false
+        },
         legend: {},
         title: {
           display: true,
@@ -61,10 +74,22 @@ export default function CompoundLineChart() {
           mode: 'index',
           intersect: false,
           callbacks: {
-            footer: (tooltipItems) => {
-              const total = tooltipItems.reduce((sum, item) => sum + item.parsed.y, 0);
-              return `Total: ${total.toLocaleString(undefined, { maximumFractionDigits: 2 })}`;
-            }
+            title: function (tooltipItems) {
+              const x = tooltipItems[0].parsed.x;
+              const labelMap = {
+                0.001: 'Current',
+                0.15: '1h',
+                1: '24h',
+                7: '7 Days',
+                14: '14 Days',
+                30: '30 Days',
+                60: '60 Days',
+                200: '200 Days',
+                365: '1 Year',
+              };
+              return labelMap[x] || x;
+            },
+
           }
         }
       },
@@ -102,8 +127,6 @@ export default function CompoundLineChart() {
           }
         },
         y: {
-
-
           stacked: true
         }
       }

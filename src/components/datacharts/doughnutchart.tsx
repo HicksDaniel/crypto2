@@ -1,64 +1,88 @@
 import React, { useState, useEffect } from "react";
+import { Chart as ChartJS } from 'chart.js';
 import { Chart } from "primereact/chart";
 import { useCoinStore } from "../../stores/useCoinStore.jsx";
+import ChartDataLabels from 'chartjs-plugin-datalabels';
+
+ChartJS.register(ChartDataLabels);
 
 export default function DoughnutChart() {
-  const [chartData, setChartData] = useState({});
-  const [chartOptions, setChartOptions] = useState({});
-  const { userFavoritesData, loading } = useCoinStore();
+  const [chartData, setChartData] = useState(null);
+  const [chartOptions, setChartOptions] = useState(null);
+  const { userFavoritesData, loading, chartColors } = useCoinStore();
 
   useEffect(() => {
     if (!userFavoritesData || userFavoritesData.length === 0) return;
 
-    const documentStyle = getComputedStyle(document.documentElement);
-    const colorPalette = [
-      documentStyle.getPropertyValue("--green-500"),
-      documentStyle.getPropertyValue("--blue-500"),
-      documentStyle.getPropertyValue("--yellow-500"),
-      documentStyle.getPropertyValue("--purple-500"),
-      documentStyle.getPropertyValue("--orange-500"),
+    const colorPalette = Object.values(chartColors);
+    const labels = userFavoritesData.map((coin) => coin.name);
+
+    const values = userFavoritesData.map(
+      (coin) => coin?.userOwned * coin?.marketData?.pricing?.currentPriceUSD
+    );
+
+    const baseColors = labels.map((_, index) =>
+      colorPalette[index % colorPalette.length]
+    );
+
+    const hoverColors = baseColors.map(color => color + "CC");
+    const datasets = [
+      {
+        label: "Portfolio Distribution",
+        data: values,
+        backgroundColor: baseColors,
+        hoverBackgroundColor: hoverColors,
+        borderWidth: 1,
+      },
     ];
 
-    const labels = userFavoritesData.map((coin) => coin.name);
-    const values = userFavoritesData.map(
-      (coin) => coin.userOwned * coin.marketData.currentPrice
-    );
+    const totalValue = values.reduce((sum, val) => sum + val, 0);
 
     setChartData({
       labels,
-      datasets: [
-        {
-          data: values,
-          backgroundColor: colorPalette.slice(0, values.length),
-          hoverBackgroundColor: colorPalette.slice(0, values.length),
-        },
-      ],
+      datasets,
     });
 
     setChartOptions({
+      responsive: true,
       plugins: {
+        title: {
+          display: true,
+          text: "Doughnut Chart",
+        },
+        subtitle: {
+          display: true,
+          text: `Total Value: $${totalValue.toLocaleString("en-US")}`,
+        },
+        datalabels: {
+          color: "#fff",
+          formatter: (value, context) => {
+            const total = context.dataset.data.reduce((a, b) => a + b, 0);
+            const percentage = ((value / total) * 100).toFixed(1);
+            return `${percentage}%`;
+          },
+        },
         legend: {
-          position: "right",
+          position: "top",
         },
       },
     });
-  }, [userFavoritesData]);
+  }, [userFavoritesData, chartColors]);
+
+  if (!chartData || !chartOptions) {
+    return (
+      <div style={{ display: "flex", height: "20rem", justifyContent: "center", alignItems: "center" }}>
+        <p>Loading chart...</p>
+      </div>
+    );
+  }
 
   return (
-    <>
-      {!loading && (
-        <Chart
-          style={{
-            display: "flex",
-            justifyContent: "center",
-            width: "inherit",
-            height: "20rem",
-          }}
-          type="doughnut"
-          data={chartData}
-          options={chartOptions}
-        />
-      )}
-    </>
+    <Chart
+      style={{ display: "flex", justifyContent: "center", width: "inherit", height: "20rem" }}
+      type="doughnut"
+      data={chartData}
+      options={chartOptions}
+    />
   );
 }

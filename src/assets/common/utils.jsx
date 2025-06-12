@@ -7,6 +7,29 @@ import TopGainersLosersDataTable from "../../components/datacharts/trendingData/
 import HistoricalDataTable from "../../components/datacharts/historicalData/HistoricalDataTable";
 
 
+export const startDate = new Date();
+startDate.setDate(startDate.getDate() - 1);
+
+export const endDate = new Date();
+
+export const DEFAULT_USER_FAVORITES = [
+  {
+    name: "bitcoin",
+    owned: 1,
+  },
+  {
+    name: "ethereum",
+    owned: 20,
+  },
+  { name: "dogecoin", owned: 380000 },
+];
+
+export const DEFAULT_CHART_DATA = {
+  labels: [],
+  datasets: [],
+};
+
+
 
 export const structuredCoinData = async (coinData) => {
   return new Promise((resolve) => {
@@ -188,7 +211,7 @@ export const DisplayCharts = [
 ];
 
 export const calculatePercentageChange = (coinData, userData = 1) => {
-  console.log("test")
+
   if (!coinData) return [];
 
   const userCoinValue = [

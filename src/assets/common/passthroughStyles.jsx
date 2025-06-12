@@ -1,4 +1,3 @@
-//Styles utilizing Passthrough
 
 export const dataTableStyles = {
   bodyRow: {

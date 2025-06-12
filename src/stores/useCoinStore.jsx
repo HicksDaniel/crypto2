@@ -2,11 +2,13 @@ import React from "react";
 import { create } from "zustand";
 import { eachDayOfInterval } from "date-fns";
 
+
+
 import {
   DEFAULT_COIN,
   DEFAULT_CHART_LIST,
   DEFAULT_DATA_STATE,
-
+  DEFAULT_CHART_DATA,
   mapTrendingData,
   mapGainersLosersData,
   mapHistoricalData,
@@ -14,32 +16,20 @@ import {
   FETCH_HEADER,
   fetchHistoryCoinData,
   fetchCoinData,
+  startDate,
+  endDate,
+  DEFAULT_USER_FAVORITES,
 
 } from "../assets/common/utils";
-
-const startDate = new Date();
-startDate.setDate(startDate.getDate() - 1);
-
-const endDate = new Date();
-
-const userFavoritesArray = [
-  {
-    name: "bitcoin",
-    owned: 1,
-  },
-  {
-    name: "ethereum",
-    owned: 20,
-  },
-  { name: "dogecoin", owned: 380000 },
-];
-
 
 
 export const useCoinStore = create((set, get) => ({
   data: DEFAULT_DATA_STATE,
   searchCoin: DEFAULT_COIN,
-  userFavorites: userFavoritesArray,
+  defaultChartData: DEFAULT_CHART_DATA,
+  userFavorites: DEFAULT_USER_FAVORITES,
+  themeColors: [],
+  chartColors: {},
   userFavoritesData: [],
   selectedDates: [startDate, endDate],
   topGainersData: [],
@@ -59,9 +49,12 @@ export const useCoinStore = create((set, get) => ({
   visibleCharts: [],
   coinList: [],
   timeline: "1",
-
   localCurrency: "usd",
   selectedDataKey: "prices",
+
+  updateThemeColors: (value1, value2) => {
+    set({ themeColors: value1, chartColors: value2 })
+  },
 
   updateSelectedDates: (value, nextValue) => {
     set({ selectedDates: [value, nextValue] })

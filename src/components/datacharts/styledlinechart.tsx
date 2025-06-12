@@ -7,7 +7,7 @@ export default function StyledLineChart() {
   const chartRef = useRef(null);
   const [chartData, setChartData] = useState(null);
   const [chartOptions, setChartOptions] = useState(null);
-  const { data, userFavoritesData } = useCoinStore();
+  const { data, userFavoritesData, themeColors, chartColors } = useCoinStore();
 
 
 
@@ -15,13 +15,12 @@ export default function StyledLineChart() {
   useEffect(() => {
     if (!userFavoritesData || userFavoritesData.length === 0) return;
 
-    const documentStyle = getComputedStyle(document.documentElement);
     const colorPalette = [
-      documentStyle.getPropertyValue("--green-500"),
-      documentStyle.getPropertyValue("--blue-500"),
-      documentStyle.getPropertyValue("--yellow-500"),
-      documentStyle.getPropertyValue("--purple-500"),
-      documentStyle.getPropertyValue("--orange-500"),
+      chartColors.computedGreen500,
+      chartColors.computedBlue500,
+      chartColors.computedYellow500,
+      chartColors.computedPurple500,
+      chartColors.computedOrange500,
     ];
 
     const labels = [0.001, 0.15, 1, 7, 14, 30, 60, 200, 365];
@@ -41,7 +40,7 @@ export default function StyledLineChart() {
       return {
         label: marketCoin?.name,
         data,
-        fill: true,
+        fill: false,
         tension: 0.4,
         backgroundColor: colorPalette[index % colorPalette.length],
         borderColor: colorPalette[index % colorPalette.length],
@@ -56,6 +55,9 @@ export default function StyledLineChart() {
       responsive: true,
       aspectRatio: 1,
       plugins: {
+        datalabels: {
+          display: false
+        },
         legend: {},
         title: {
           display: true,
@@ -65,7 +67,22 @@ export default function StyledLineChart() {
           mode: 'index',
           intersect: false,
           callbacks: {
-            footer: (tooltipItems) => {
+            title: function (tooltipItems) {
+              const x = tooltipItems[0].parsed.x;
+              const labelMap = {
+                0.001: 'Current',
+                0.15: '1h',
+                1: '24h',
+                7: '7 Days',
+                14: '14 Days',
+                30: '30 Days',
+                60: '60 Days',
+                200: '200 Days',
+                365: '1 Year',
+              };
+              return labelMap[x] || x;
+            },
+            footer: function (tooltipItems) {
               const total = tooltipItems.reduce((sum, item) => sum + item.parsed.y, 0);
               return `Total: ${total.toLocaleString(undefined, { maximumFractionDigits: 2 })}`;
             }

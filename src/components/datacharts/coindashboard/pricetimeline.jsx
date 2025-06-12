@@ -1,17 +1,46 @@
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useRef } from "react";
 import { Chart } from "primereact/chart";
 import { useCoinStore } from "../../../stores/useCoinStore";
 import { Skeleton } from "primereact/skeleton";
 import { hoverLine } from "./common/generateChartDataset";
+import { Tooltip } from 'chart.js';
+
+
+
+
+
+Tooltip.positioners.offsetBelow = function (elements, eventPosition) {
+  const pos = Tooltip.positioners.average(elements);
+  if (!pos) return false;
+
+  const chart = elements[0].element.$context.chart;
+  const tooltipWidth = chart.tooltip.width || 100;
+  const chartWidth = chart.width;
+
+  let adjustedX = pos.x - tooltipWidth / 2;
+
+  if (adjustedX < 10) adjustedX + 140; // Prevent left overflow
+  if (adjustedX + tooltipWidth > chartWidth - 150) {
+    adjustedX = chartWidth - tooltipWidth + 50; // Prevent right overflow
+  }
+
+  return {
+    x: adjustedX,
+    y: pos.y + 50,
+  };
+};
+
 
 import {
-  DEFAULT_CHART_DATA,
   prepareDataset,
   createChartData,
   createChartOptions,
 } from "./common/generateChartDataset";
 
+
 export default function PriceTimeline() {
+
+  const chartRef = useRef(null);
   const {
     singleCoinData,
     searchCoin,
@@ -19,25 +48,33 @@ export default function PriceTimeline() {
     loading,
     error,
     fetchSingleCoinData,
+    themeColors,
+    defaultChartData,
     selectedDataKey,
   } = useCoinStore();
+
+
 
   useEffect(() => {
     fetchSingleCoinData();
   }, []);
 
+
   const chartDataMemo = useMemo(() => {
-    if (!singleCoinData?.[selectedDataKey]?.length) return DEFAULT_CHART_DATA;
+    if (!singleCoinData?.[selectedDataKey]?.length) return defaultChartData;
     const dataset = prepareDataset(singleCoinData[selectedDataKey]);
     return createChartData(searchCoin, selectedDataKey, dataset);
   }, [singleCoinData, searchCoin, selectedDataKey]);
 
   const chartOptionsMemo = useMemo(() => {
-    return createChartOptions(timeline, selectedDataKey);
-  }, [timeline, selectedDataKey]);
+    console.log(themeColors)
+    return createChartOptions(timeline, selectedDataKey, themeColors);
+  }, [timeline, selectedDataKey, themeColors]);
 
   const renderChart = () => (
     <Chart
+      onClick={() => console.log(chartOptionsMemo)}
+      ref={chartRef}
       className="w-12"
       key={selectedDataKey}
       type="line"
